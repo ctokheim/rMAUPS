@@ -3,6 +3,7 @@
 ssNES <- function(mat, gsType="Complex", method = "gsva"){
   require(MAGeCKFlute)
   require(GSVA)
+  mat = as.matrix(mat)
   gsets = gsGetter(type = gsType)
   gsets$Symbol = TransGeneID(gsets$Gene, "Entrez", "Symbol")
   gsets = gsets[!is.na(gsets$Symbol), ]

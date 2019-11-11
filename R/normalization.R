@@ -23,6 +23,7 @@ normalizeProteomeDiscoverer <- function(df.prot, norm = "median", log2 = FALSE){
   df <- df.prot[, channels]
   rownames(df) <- df.prot$Accession
   colnames(df) <- gsub("^Abundance.F...|Sample.", "", colnames(df))
+  df = cbind(Gene = as.character(df.prot$Gene.Symbol), df)
 
   # Remove protein contaminants
   idx1 = toupper(df.prot$Contaminant)!="TRUE"
@@ -31,11 +32,12 @@ normalizeProteomeDiscoverer <- function(df.prot, norm = "median", log2 = FALSE){
   df <- df[idx1&idx2, ]
 
   # Remove data with NAs or low sum of reporter ion intensities
-  idx1 <- rowSums(df, na.rm = TRUE)>0
+  idx1 <- rowSums(df[,-1], na.rm = TRUE)>0
   df <- df[idx1, ]
 
-  normdf = normalizeMS(df, norm, log2)
-
+  normdf = normalizeMS(df[,-1], norm, log2)
+  normdf = as.data.frame(normdf, stringsAsFactors = FALSE)
+  normdf = cbind.data.frame(Gene = df[,1], normdf)
   # Normalize and scale data to create relative abundance matrix
   # Remove negative values from previous variables
   return(normdf)
