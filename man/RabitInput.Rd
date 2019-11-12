@@ -5,31 +5,21 @@
 \alias{RabitInput}
 \title{From DEanalyze results to Rabit input}
 \usage{
-RabitInput(DEpath, idType = "symbol", org = "hsa", outdir = "./")
+RabitInput(deres, idType = "symbol", org = "hsa")
 }
 \arguments{
-\item{DEpath}{Path to differential expression results.}
+\item{deres}{Path to differential expression results or data frame of the DE results.}
 
 \item{idType}{One of "symbol", "ensembl", "uniprot", and "refseq".
 the rownames should match colnames in obj, and the first column should be Condition.}
 
-\item{type}{"Array", "RNASeq" or "msms", only needed when obj is matrix like object.}
-
-\item{method}{Differential expression analysis method, e.g. limma, DESeq2, GFOLD,
-glm.pois, glm.qlll, and glm.nb.}
-
-\item{paired}{Boolean, specifying whether perform paired comparison.}
-
-\item{app.dir}{The path to application (e.g. GFOLD).}
+\item{org}{hsa or mmu.}
 }
 \value{
-An ExpressionSet instance.
+A weighted gene list.
 }
 \description{
 From DEanalyze results to Rabit input
-}
-\seealso{
-\code{\link{ExpressionSet-class}}
 }
 \author{
 Wubing Zhang

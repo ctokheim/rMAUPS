@@ -4,7 +4,7 @@
 #' @name DEAnalyze
 #' @rdname DEAnalyze
 #'
-#' @param obj Matrix like object or an ExprDataSet instance.
+#' @param obj Matrix like object or an ExpressionSet instance.
 #' @param SampleAnn Matrix like object (only when obj is a matrix),
 #' the rownames should match colnames in obj, and the first column should be Condition.
 #' @param type "Array", "RNASeq" or "msms", only needed when obj is matrix like object.
@@ -28,7 +28,10 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
   if(is.matrix(obj) | is.data.frame(obj)){
     colnames(SampleAnn)[1] = "Condition"
     if(paired) colnames(SampleAnn)[2] = "Sibs"
-    expr <- as.matrix(obj[, rownames(SampleAnn)])
+    samples = intersect(rownames(SampleAnn), colnames(obj))
+    if(length(samples)<2) stop("Too small sample size !!!")
+    expr <- as.matrix(obj[, samples])
+    SampleAnn = SampleAnn[samples, ]
     # obj = new("ExprDataSet", rawdata = expr, SampleAnn = SampleAnn, type = type)
     obj = ExpressionSet(assayData = expr, pData = AnnotatedDataFrame(SampleAnn))
   }
@@ -50,8 +53,8 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
     #"ls" for least squares or "robust" for robust regression
     fit = eBayes(lmFit(exprs(obj), design, na.rm=TRUE))
     res = topTable(fit, adjust.method="BH", coef=ncol(design), number = Inf)
-    res = res[, c("AveExpr", "logFC", "t", "P.Value", "adj.P.Val")]
-    colnames(res) = c("baseMean", "log2FC", "stat", "pvalue", "padj")
+    res = res[, c("logFC", "AveExpr", "t", "P.Value", "adj.P.Val")]
+    colnames(res) = c("log2FC", "baseMean", "stat", "pvalue", "padj")
   }else if(tolower(type) == "rnaseq"){
     if(tolower(method) == "deseq2"){
       requireNamespace("DESeq2")
@@ -61,8 +64,8 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
       dds <- DESeq2::DESeq(dds)
       res <- DESeq2::lfcShrink(dds, coef = ncol(design), quiet = TRUE)
       res$padj[is.na(res$padj)] = 1
-      res = res[, c("baseMean", "log2FoldChange", "stat", "pvalue", "padj")]
-      colnames(res) = c("baseMean", "log2FC", "stat", "pvalue", "padj")
+      res = res[, c("log2FoldChange", "baseMean", "stat", "pvalue", "padj")]
+      colnames(res) = c("log2FC", "baseMean", "stat", "pvalue", "padj")
     }else if(tolower(method) == "limma"){
       requireNamespace("limma")
       exprs(obj) = TransformCount(exprs(obj), method = "voom")
@@ -72,8 +75,8 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
       dge <- voom(dge, design, plot=FALSE)
       fit <- eBayes(lmFit(dge, design))
       res = topTable(fit, adjust.method="BH", coef=ncol(design), number = nrow(exprs(obj)))
-      res = res[, c("AveExpr", "logFC", "t", "P.Value", "adj.P.Val")]
-      colnames(res) = c("baseMean", "log2FC", "stat", "pvalue", "padj")
+      res = res[, c("logFC", "AveExpr", "t", "P.Value", "adj.P.Val")]
+      colnames(res) = c("log2FC", "baseMean", "stat", "pvalue", "padj")
     }else if(tolower(method) == "edger"){
       requireNamespace("edgeR")
       exprs(obj) = TransformCount(exprs(obj), method = "voom")
@@ -83,8 +86,8 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
       fit <- glmFit(dge, design)
       lrt <- glmLRT(fit)
       res <- topTags(lrt, n = nrow(exprs(obj)))
-      res = res$table[, c("logCPM", "logFC", "logFC", "PValue", "FDR")]
-      colnames(res) = c("baseMean", "log2FC", "stat", "pvalue", "padj")
+      res = res$table[, c("logFC", "logCPM", "logFC", "PValue", "FDR")]
+      colnames(res) = c("log2FC", "baseMean", "stat", "pvalue", "padj")
     }else if(tolower(method) == "gfold"){
       exprs(obj) = TransformCount(exprs(obj), method = "voom")
       # GFOLD
@@ -99,8 +102,8 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
                     " -s2 ", paste0(treatname, collapse=","), " -suf .txt -o gfold_tmp")
              )
       res = read.table("gfold_tmp", row.names=1, stringsAsFactors = FALSE)
-      res = res[, c(5, 4, 2, 3, 3)]
-      colnames(res) = c("baseMean", "log2FC", "stat", "pvalue", "padj")
+      res = res[, c(4, 5, 2, 3, 3)]
+      colnames(res) = c("log2FC", "baseMean", "stat", "pvalue", "padj")
       tmp = file.remove(paste0(ctrlname, ".txt"), paste0(treatname, ".txt"),
                         "gfold_tmp", "gfold_tmp.ext")
     }else{
@@ -113,8 +116,8 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
       #"ls" for least squares or "robust" for robust regression
       fit = eBayes(lmFit(exprs(obj), design))
       res = topTable(fit, adjust.method="BH", coef=ncol(design), number = Inf)
-      res = res[, c("AveExpr", "logFC", "t", "P.Value", "adj.P.Val")]
-      colnames(res) = c("baseMean", "log2FC", "stat", "pvalue", "padj")
+      res = res[, c("logFC", "AveExpr", "t", "P.Value", "adj.P.Val")]
+      colnames(res) = c("log2FC", "baseMean", "stat", "pvalue", "padj")
     }else if(grepl("^glm\\.", tolower(method))){
       requireNamespace("msmsTests")
       fd <- data.frame(gene = rownames(exprs(obj)),
@@ -137,8 +140,8 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
       }
       res$baseMean = rowMeans(exprs(obj))[rownames(res)]
       res$padj = p.adjust(res$p.value, method = "BH")
-      res = res[, c(4,1:3,5)]
-      colnames(res) = c("baseMean", "log2FC", "stat", "pvalue", "padj")
+      res = res[, c(1,4,2:3,5)]
+      colnames(res) = c("log2FC", "baseMean", "stat", "pvalue", "padj")
     }
   }else{
     stop("Data type error! ")

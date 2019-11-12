@@ -9,7 +9,7 @@ DEAnalyze(obj, SampleAnn = NULL, type = "Array", method = "limma",
   paired = FALSE, app.dir = "/Users/Wubing/Applications/gfold/gfold")
 }
 \arguments{
-\item{obj}{Matrix like object or an ExprDataSet instance.}
+\item{obj}{Matrix like object or an ExpressionSet instance.}
 
 \item{SampleAnn}{Matrix like object (only when obj is a matrix),
 the rownames should match colnames in obj, and the first column should be Condition.}
