@@ -4,7 +4,6 @@
 \name{reexports}
 \alias{reexports}
 \alias{TransGeneID}
-\alias{getGeneAnn}
 \alias{gsGetter}
 \alias{EnrichAnalyzer}
 \alias{enrich.GSE}
@@ -26,6 +25,6 @@ below to see their documentation.
 \describe{
   \item{enrichplot}{\code{\link[enrichplot]{cnetplot}}, \code{\link[enrichplot]{dotplot}}, \code{\link[enrichplot]{emapplot}}, \code{\link[enrichplot]{goplot}}, \code{\link[enrichplot]{gseaplot}}, \code{\link[enrichplot]{heatplot}}, \code{\link[enrichplot]{ridgeplot}}}
 
-  \item{MAGeCKFlute}{\code{\link[MAGeCKFlute]{TransGeneID}}, \code{\link[MAGeCKFlute]{getGeneAnn}}, \code{\link[MAGeCKFlute]{gsGetter}}, \code{\link[MAGeCKFlute]{EnrichAnalyzer}}, \code{\link[MAGeCKFlute]{enrich.GSE}}, \code{\link[MAGeCKFlute]{enrich.ORT}}, \code{\link[MAGeCKFlute]{enrich.HGT}}}
+  \item{MAGeCKFlute}{\code{\link[MAGeCKFlute]{TransGeneID}}, \code{\link[MAGeCKFlute]{gsGetter}}, \code{\link[MAGeCKFlute]{EnrichAnalyzer}}, \code{\link[MAGeCKFlute]{enrich.GSE}}, \code{\link[MAGeCKFlute]{enrich.ORT}}, \code{\link[MAGeCKFlute]{enrich.HGT}}}
 }}
 

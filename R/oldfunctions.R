@@ -2,10 +2,6 @@
 ##' @export
 MAGeCKFlute::TransGeneID
 
-##' @importFrom MAGeCKFlute getGeneAnn
-##' @export
-MAGeCKFlute::getGeneAnn
-
 ##' @importFrom MAGeCKFlute gsGetter
 ##' @export
 MAGeCKFlute::gsGetter
