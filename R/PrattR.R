@@ -2,19 +2,18 @@
 #'
 #' @param sequences A vector of sequences.
 #' @param api The path to pratt.py API.
-#' @param minPerc the minimum percentage of the input sequences that should match a pattern (C%).
-#' @param maxPatternLength Maximum pattern length (PL parameter) allows you to set the maximum length of a pattern.
-#' @param maxNumPatternSymbols Maximum number of pattern symbols (PN parameter).
-#' @param maxNumWildcard Maximum length of a widecard (x).
-#' @param maxNumFlexSpaces Maximum number of flexible space (matching a variable number of arbitrary sequence symbols).
-#' @param maxFlexibility The maximum flexibility of a flexible wildcard (matching a variable number
-#' of arbitrary sequence symbols) (FL parameter). For instance x(2,4) and x(10,12) has flexibility 2.
+#' @param minPerc the minimum percentage of the input sequences that should match a pattern.
+#' @param maxPatternLength Maximum pattern length allows you to set the maximum length of a pattern.
+#' @param maxNumPatternSymbols Maximum number of pattern symbols, PN parameter.
+#' @param maxNumWildcard Maximum length of a widecard.
+#' @param maxNumFlexSpaces Maximum number of flexible space.
+#' @param maxFlexibility The maximum flexibility of a flexible wildcard. For instance x(2,4) and x(10,12) has flexibility 2.
 #' @param maxFlexProduct Upper limit on the product of a flexibilities for a pattern.
-#' @param patternRefinement Pattern Refinement (R parameter).
-#' @param patternFormat PROSITE Pattern Format (OP parameter). When switched on, patterns
-#' will be output in PROSITE style (for instance C-x(2,4)-[DE]).
-#' @param maxNumPatterns Maximum number of patterns (ON parameter) between 1 and 100.
-#' @param printVertically Print vertically (MV parameter). if set, the output is printed vertically instead
+#' @param patternRefinement Pattern Refinement.
+#' @param patternFormat PROSITE Pattern Format. When switched on, patterns
+#' will be output in PROSITE style.
+#' @param maxNumPatterns Maximum number of patterns between 1 and 100.
+#' @param printVertically Print vertically. if set, the output is printed vertically instead
 #' of horizontally, vertical output can be better for large sequence sets.
 #'
 #' @export

@@ -6,7 +6,7 @@ Author: Wubing Zhang
 Maintainer: Wubing Zhang <wzhang@ds.dfci.harvard.edu>
 Description: Model-based Analysis of Ubiquitin-Proteosome System.
 Depends: R (>= 3.5)
-Imports: optparse, DESeq2, limma, MAGeCKFlute, msmsTests, impute, metap, ggpubr, GSVA
+Imports: optparse, DESeq2, limma, MAGeCKFlute, msmsTests, impute, metap, ggpubr, GSVA, dendextend
 License: GPL (>=3)
 Encoding: UTF-8
 LazyData: true

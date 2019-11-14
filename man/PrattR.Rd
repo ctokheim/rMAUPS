@@ -16,29 +16,28 @@ PrattR(sequences, api = "/Users/Wubing/Jobs/Project/UPS/_Code/pratt.py",
 
 \item{api}{The path to pratt.py API.}
 
-\item{minPerc}{the minimum percentage of the input sequences that should match a pattern (C%).}
+\item{minPerc}{the minimum percentage of the input sequences that should match a pattern.}
 
-\item{maxPatternLength}{Maximum pattern length (PL parameter) allows you to set the maximum length of a pattern.}
+\item{maxPatternLength}{Maximum pattern length allows you to set the maximum length of a pattern.}
 
-\item{maxNumPatternSymbols}{Maximum number of pattern symbols (PN parameter).}
+\item{maxNumPatternSymbols}{Maximum number of pattern symbols, PN parameter.}
 
-\item{maxNumWildcard}{Maximum length of a widecard (x).}
+\item{maxNumWildcard}{Maximum length of a widecard.}
 
-\item{maxNumFlexSpaces}{Maximum number of flexible space (matching a variable number of arbitrary sequence symbols).}
+\item{maxNumFlexSpaces}{Maximum number of flexible space.}
 
-\item{maxFlexibility}{The maximum flexibility of a flexible wildcard (matching a variable number
-of arbitrary sequence symbols) (FL parameter). For instance x(2,4) and x(10,12) has flexibility 2.}
+\item{maxFlexibility}{The maximum flexibility of a flexible wildcard. For instance x(2,4) and x(10,12) has flexibility 2.}
 
 \item{maxFlexProduct}{Upper limit on the product of a flexibilities for a pattern.}
 
-\item{patternRefinement}{Pattern Refinement (R parameter).}
+\item{patternRefinement}{Pattern Refinement.}
 
-\item{patternFormat}{PROSITE Pattern Format (OP parameter). When switched on, patterns
-will be output in PROSITE style (for instance C-x(2,4)-[DE]).}
+\item{patternFormat}{PROSITE Pattern Format. When switched on, patterns
+will be output in PROSITE style.}
 
-\item{maxNumPatterns}{Maximum number of patterns (ON parameter) between 1 and 100.}
+\item{maxNumPatterns}{Maximum number of patterns between 1 and 100.}
 
-\item{printVertically}{Print vertically (MV parameter). if set, the output is printed vertically instead
+\item{printVertically}{Print vertically. if set, the output is printed vertically instead
 of horizontally, vertical output can be better for large sequence sets.}
 }
 \description{
