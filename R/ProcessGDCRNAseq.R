@@ -1,10 +1,3 @@
-library(dplyr)
-library(readr)
-library(stringr)
-library(biomaRt)
-library(MAGeCKFlute)
-library(stringr)
-library(DEqMS)
 #' GetCptacRNAseqData: Together the RNAseq data(Count,FPKM) from NCI Genomic Data Commons (GDC)
 #' @description : UCEC,Kidney and Lung cancer RNAseq data are stored in the NCI Genomic Data Commons (GDC).
 #'               The data which we get from the GDC are separately.We can use GetCptacRNAseqData
@@ -13,7 +6,7 @@ library(DEqMS)
 #' @param anno_file: The name of the comment file which is downloaded from GDC.
 #' @param type: Data type (Count or FPKM).
 #' @return Merged data, which can do the downstream analysis.
-ProcessGDCRNAseq <- function(path=gdcdown.path,anno_file = anno_file,type="FPKM"){
+ProcessGDCRNAseq <- function(path,anno_file,type="FPKM"){
       dirs <- list.files(path)
       dirs <- dirs[!grepl(".txt",dirs)]  # remove the "MANIFEST.txt" file
       # get the expression file 
@@ -49,4 +42,3 @@ ProcessGDCRNAseq <- function(path=gdcdown.path,anno_file = anno_file,type="FPKM"
           gene_expr_unique <- gene_expr_unique[,colnames(gene_expr_unique)!="entrze"]
       return(gene_expr_unique)
       }
-gene_expr <- ProcessGDCRNAseq(path=gdcdown.path,anno_file = anno_file,type="FPKM")
