@@ -11,6 +11,8 @@
 #' @param method Differential expression analysis method, e.g. limma, DESeq2, GFOLD,
 #' glm.pois, glm.qlll, and glm.nb.
 #' @param paired Boolean, specifying whether perform paired comparison.
+#' @param GeneAnn Matrix like object (only when obj is a matrix), the rownames should match rownames of obj.
+#' @param return Character, either data.frame or ExpressionSet, specifying the return object type.
 #' @param app.dir The path to application (e.g. GFOLD).
 #'
 #' @return An ExpressionSet instance.
@@ -22,18 +24,25 @@
 #' @export
 
 DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
-                      method = "limma", paired = FALSE,
+                      method = "limma", paired = FALSE, GeneAnn = NULL,
+                      return = c("data.frame", "ExpressionSet")[1],
                       app.dir = "/Users/Wubing/Applications/gfold/gfold"){
   #### Create a new object ####
   if(is.matrix(obj) | is.data.frame(obj)){
+    obj = na.omit(obj)
     colnames(SampleAnn)[1] = "Condition"
     if(paired) colnames(SampleAnn)[2] = "Sibs"
     samples = intersect(rownames(SampleAnn), colnames(obj))
     if(length(samples)<2) stop("Too small sample size !!!")
     expr <- as.matrix(obj[, samples])
-    SampleAnn = SampleAnn[samples, ]
+    SampleAnn = SampleAnn[samples, , drop = FALSE]
     # obj = new("ExprDataSet", rawdata = expr, SampleAnn = SampleAnn, type = type)
-    obj = ExpressionSet(assayData = expr, pData = AnnotatedDataFrame(SampleAnn))
+    obj = ExpressionSet(assayData = expr, phenoData = AnnotatedDataFrame(SampleAnn))
+    if(!is.null(GeneAnn)){
+      tmp = GeneAnn[rownames(obj), drop = FALSE]
+      rownames(tmp) = rownames(obj)
+      slot(obj, "featureData") = AnnotatedDataFrame(tmp)
+    }
   }
 
   #### Build design matrix ####
@@ -45,11 +54,9 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
     design = model.matrix(~1+Condition, pData(obj))
     rownames(design) = sampleNames(obj)
   }
-  idx_r = rowSums(exprs(obj), na.rm = TRUE)!=0
-  data = exprs(obj)[idx_r, ]
   if(tolower(type) == "array"){
     requireNamespace("limma")
-    exprs(obj) = normalizeQuantiles(data)
+    exprs(obj) = normalizeQuantiles(expr(obj))
     #"ls" for least squares or "robust" for robust regression
     fit = eBayes(lmFit(exprs(obj), design, na.rm=TRUE))
     res = topTable(fit, adjust.method="BH", coef=ncol(design), number = Inf)
@@ -58,9 +65,9 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
   }else if(tolower(type) == "rnaseq"){
     if(tolower(method) == "deseq2"){
       requireNamespace("DESeq2")
-      exprs(obj) = TransformCount(data, method = "vst")
+      # exprs(obj) = TransformCount(exprs(obj), method = "vst")
       # DESeq2
-      dds = DESeqDataSetFromMatrix(data, colData = pData(obj), design = design)
+      dds = DESeqDataSetFromMatrix(exprs(obj), colData = pData(obj), design = design)
       dds <- DESeq2::DESeq(dds)
       res <- DESeq2::lfcShrink(dds, coef = ncol(design), quiet = TRUE)
       res$padj[is.na(res$padj)] = 1
@@ -70,7 +77,7 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
       requireNamespace("limma")
       exprs(obj) = TransformCount(exprs(obj), method = "voom")
       # limma:voom
-      dge <- DGEList(counts=data)
+      dge <- DGEList(counts=exprs(obj))
       dge <- calcNormFactors(dge)
       dge <- voom(dge, design, plot=FALSE)
       fit <- eBayes(lmFit(dge, design))
@@ -80,7 +87,7 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
     }else if(tolower(method) == "edger"){
       requireNamespace("edgeR")
       exprs(obj) = TransformCount(exprs(obj), method = "voom")
-      dge <- DGEList(counts=data)
+      dge <- DGEList(counts=exprs(obj))
       dge <- calcNormFactors(dge)
       dge <- estimateDisp(dge, design, robust=TRUE)
       fit <- glmFit(dge, design)
@@ -92,9 +99,9 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
       exprs(obj) = TransformCount(exprs(obj), method = "voom")
       # GFOLD
       tmp = mapply(function(x){
-        write.table(cbind(NA, data[,x], NA, NA),
-                    file=paste0(colnames(data)[x], ".txt"),
-                    sep="\t", col.names=FALSE)}, x=1:ncol(data))
+        write.table(cbind(NA, exprs(obj)[,x], NA, NA),
+                    file=paste0(colnames(exprs(obj))[x], ".txt"),
+                    sep="\t", col.names=FALSE)}, x=1:ncol(exprs(obj)))
       lev = levels(pData(obj)$Condition)
       ctrlname = rownames(pData(obj))[pData(obj)$Condition==lev[1]]
       treatname = rownames(pData(obj))[pData(obj)$Condition==lev[2]]
@@ -110,7 +117,6 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
       stop("Method not available for RNA-seq data !!!")
     }
   }else if(tolower(type) == "msms"){
-    exprs(obj) = data
     if (tolower(method) == "limma"){
       requireNamespace("limma")
       #"ls" for least squares or "robust" for robust regression
@@ -146,8 +152,10 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
   }else{
     stop("Data type error! ")
   }
-  slot(obj, "featureData") = AnnotatedDataFrame(cbind(slot(obj, "featureData"),
-                                                      res[featureNames(obj),]))
+  if(return == "data.frame") return(res)
+  tmp = cbind(obj@featureData@data, res[rownames(obj@featureData@data), ])
+  rownames(tmp) = rownames(obj@featureData@data)
+  slot(obj, "featureData") = AnnotatedDataFrame(tmp)
   return(obj)
 }
 

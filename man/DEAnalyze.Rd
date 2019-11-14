@@ -6,7 +6,9 @@
 \title{Differential expression analysis}
 \usage{
 DEAnalyze(obj, SampleAnn = NULL, type = "Array", method = "limma",
-  paired = FALSE, app.dir = "/Users/Wubing/Applications/gfold/gfold")
+  paired = FALSE, GeneAnn = NULL, return = c("data.frame",
+  "ExpressionSet")[1],
+  app.dir = "/Users/Wubing/Applications/gfold/gfold")
 }
 \arguments{
 \item{obj}{Matrix like object or an ExpressionSet instance.}
@@ -20,6 +22,10 @@ the rownames should match colnames in obj, and the first column should be Condit
 glm.pois, glm.qlll, and glm.nb.}
 
 \item{paired}{Boolean, specifying whether perform paired comparison.}
+
+\item{GeneAnn}{Matrix like object (only when obj is a matrix), the rownames should match rownames of obj.}
+
+\item{return}{Character, either data.frame or ExpressionSet, specifying the return object type.}
 
 \item{app.dir}{The path to application (e.g. GFOLD).}
 }

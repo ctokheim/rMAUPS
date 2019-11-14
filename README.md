@@ -5,6 +5,7 @@
 ## Installation
 
 ```
+BiocManager::install(c("clusterProfiler", "GSVA", "DESeq2", "limma", "MAGeCKFlute", "msmsTests", "metap", "impute", "ggpubr", "optparse"))
 install.packages("devtools")
 devtools::install_github("WubingZhang/rMAUPS")
 ```

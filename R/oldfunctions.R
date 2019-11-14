@@ -6,6 +6,10 @@ MAGeCKFlute::TransGeneID
 ##' @export
 MAGeCKFlute::getGeneAnn
 
+##' @importFrom MAGeCKFlute gsGetter
+##' @export
+MAGeCKFlute::gsGetter
+
 ##' @importFrom MAGeCKFlute EnrichAnalyzer
 ##' @export
 MAGeCKFlute::EnrichAnalyzer
@@ -21,26 +25,6 @@ MAGeCKFlute::enrich.ORT
 ##' @importFrom MAGeCKFlute enrich.HGT
 ##' @export
 MAGeCKFlute::enrich.HGT
-
-##' @importFrom quickAnalyze DEAnalyze
-##' @export
-quickAnalyze::DEAnalyze
-
-##' @importFrom quickAnalyze gsScore
-##' @export
-quickAnalyze::gsScore
-
-##' @importFrom quickAnalyze BarView
-##' @export
-quickAnalyze::BarView
-
-##' @importFrom quickAnalyze ScatterView
-##' @export
-quickAnalyze::ScatterView
-
-##' @importFrom quickAnalyze hclustView
-##' @export
-quickAnalyze::hclustView
 
 ##' @importFrom enrichplot cnetplot
 ##' @export

@@ -18,8 +18,9 @@ gsScore <- function(dat, gset, fun="PC") {
   }
   gss = t(sapply(gset, function(gs){
     gm = dat[rownames(dat)%in%gs, , drop = FALSE]
-    if(nrow(gm)<1) return(rep(NA, ncol(dat)))
-    if((nrow(gm)>0 & nrow(gm)<3) | tolower(fun) == "mean"){
+    if(nrow(gm)<0) return(rep(NA, ncol(dat)))
+    if(nrow(gm)==1) return(gm[1,])
+    if((nrow(gm)>1 & nrow(gm)<3) | tolower(fun) == "mean"){
       gss <- colMeans(gm)
     }else if(tolower(fun) == "median"){
       gss <- matrixStats::colMedians(as.matrix(gm))
