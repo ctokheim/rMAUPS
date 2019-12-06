@@ -9,7 +9,7 @@ gsScore(dat, gset, fun = "PC")
 \arguments{
 \item{gset}{Gene sets.}
 
-\item{fun}{("PC", default), Pearson, ssGSEA or mean (other value). fisher, Edgington}
+\item{fun}{("PC", default), Pearson, ssGSEA or mean (other value). fisher, stouffer}
 
 \item{gm}{normalized count matrix; rows are all genes in the signature that shall be summarized into one score; columns are samples}
 }

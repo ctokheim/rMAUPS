@@ -20,7 +20,7 @@
 #'
 #' @author Wubing Zhang
 #'
-#' @import limma DESeq2 msmsTests Biobase
+#' @import limma DESeq2 msmsTests Biobase edgeR
 #' @export
 
 DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
@@ -56,7 +56,7 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
   }
   if(tolower(type) == "array"){
     requireNamespace("limma")
-    exprs(obj) = normalizeQuantiles(expr(obj))
+    # exprs(obj) = normalizeQuantiles(exprs(obj))
     #"ls" for least squares or "robust" for robust regression
     fit = eBayes(lmFit(exprs(obj), design, na.rm=TRUE))
     res = topTable(fit, adjust.method="BH", coef=ncol(design), number = Inf)
@@ -75,7 +75,7 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
       colnames(res) = c("log2FC", "baseMean", "stat", "pvalue", "padj")
     }else if(tolower(method) == "limma"){
       requireNamespace("limma")
-      exprs(obj) = TransformCount(exprs(obj), method = "voom")
+      # exprs(obj) = TransformCount(exprs(obj), method = "voom")
       # limma:voom
       dge <- DGEList(counts=exprs(obj))
       dge <- calcNormFactors(dge)
@@ -86,7 +86,7 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
       colnames(res) = c("log2FC", "baseMean", "stat", "pvalue", "padj")
     }else if(tolower(method) == "edger"){
       requireNamespace("edgeR")
-      exprs(obj) = TransformCount(exprs(obj), method = "voom")
+      # exprs(obj) = TransformCount(exprs(obj), method = "voom")
       dge <- DGEList(counts=exprs(obj))
       dge <- calcNormFactors(dge)
       dge <- estimateDisp(dge, design, robust=TRUE)
@@ -152,6 +152,7 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
   }else{
     stop("Data type error! ")
   }
+  res = as.data.frame(res)
   if(return == "data.frame") return(res)
   tmp = cbind(obj@featureData@data, res[rownames(obj@featureData@data), ])
   rownames(tmp) = rownames(obj@featureData@data)

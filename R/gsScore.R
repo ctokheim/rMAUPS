@@ -3,7 +3,7 @@
 ##' This wrapper function combines filtering out genes with low reads in a number of samples (recommended for limma:voom) with normalization
 ##' @param gm normalized count matrix; rows are all genes in the signature that shall be summarized into one score; columns are samples
 ##' @param gset Gene sets.
-##' @param fun ("PC", default), Pearson, ssGSEA or mean (other value). fisher, Edgington
+##' @param fun ("PC", default), Pearson, ssGSEA or mean (other value). fisher, stouffer
 ##' @return numeric vector or matrix.
 ##' @author Wubing Zhang
 ##' @import GSVA metap
@@ -35,8 +35,8 @@ gsScore <- function(dat, gset, fun="PC") {
       gss <- (t(gm) %*% w)[,1]
     } else if (tolower(fun) == "fisher"){
       gss = metap::sumlog(gm[,1])$p
-    } else if (tolower(fun) == "edgington"){
-      gss = metap::sump(gm[,1])$p
+    }else if(tolower(fun) == "stouffer"){
+      gss = colSums(gm) / sqrt(nrow(gm))
     }else{
       gss = rep(NA, ncol(dat))
     }

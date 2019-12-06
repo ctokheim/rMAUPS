@@ -25,8 +25,6 @@
 
 TransProteinID <- function(ids, fromType="uniprot", toType="symbol",
                         organism = "hsa", ensemblHost = "www.ensembl.org", update = FALSE){
-  requireNamespace("biomaRt")
-
   #### Verify  parameters ####
   ids = as.character(ids)
   fromType = tolower(fromType)
@@ -48,8 +46,10 @@ TransProteinID <- function(ids, fromType="uniprot", toType="symbol",
     ann <- getProteinAnn(organism, update)
     ann0 = ann; ann0$Uniprot = gsub("-.*", "", ann0$Uniprot)
     ann = rbind.data.frame(ann, ann0)
-    if(fromType=="uniprot" | toType=="uniprot"){
+    if(fromType=="uniprot"){
       ann = ann[ann$DB %in% c(fromType, toType), c("Uniprot", "ID")]
+    }else if(toType=="uniprot"){
+      ann = ann[ann$DB %in% c(fromType, toType), c("ID", "Uniprot")]
     }else{
       tmp1 = ann[ann$DB==fromType, ]
       tmp2 = ann[ann$DB==toType, ]
@@ -80,6 +80,7 @@ TransProteinID <- function(ids, fromType="uniprot", toType="symbol",
       toType = ifelse(sum(idx)>0, attrs[idx][1], attrs[idx1])
       if(toType=="hgnc_symbol" & organism=="mmu") toType = "mgi_symbol"
     }
+    requireNamespace("biomaRt")
     ## retrieve the data
     ann = getBM(attributes=c(fromType, toType), mart = ensembl,
                 filters = fromType, values = ids)

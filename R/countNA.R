@@ -3,6 +3,7 @@
 #' @return a ggplot object.
 #' @import ggplot2 ggpubr
 #' @author Wubing Zhang
+#' @export
 #'
 #'
 countNA <- function(expr

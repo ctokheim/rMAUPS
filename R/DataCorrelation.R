@@ -8,6 +8,7 @@
 #' @return A ggplot instance.
 #' @import ggplot2 ggpubr
 #' @author Wubing Zhang
+#' @export
 
 DataCorrelation <- function(ds1, ds2, method="spearman"
                             # , filename = NULL, width = 5, height = 4, ...
