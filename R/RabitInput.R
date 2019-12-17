@@ -35,5 +35,7 @@ RabitInput <- function(DExprSet, idType = "symbol", org = "hsa"){
   idx = duplicated(DExprSet$Entrez) | is.na(DExprSet$Entrez)
   DExprSet = DExprSet[!idx, ]
   ranklist = DExprSet$stat; names(ranklist) = DExprSet$Entrez
+  ranklist = as.data.frame(ranklist)
+  colnames(ranklist)="logFC"
   return(ranklist)
 }
