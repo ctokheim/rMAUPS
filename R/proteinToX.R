@@ -98,8 +98,7 @@
 #'
 #' ## The result for the region within the second protein
 #' res[[2]]
-proteinToTranscript <- function(x, db, id = "name",
-                                idType = "protein_id") {
+proteinToTranscript <- function(x, db, id = "name", idType = "protein_id") {
   if (missing(x) || !is(x, "IRanges"))
     stop("Argument 'x' is required and has to be an 'IRanges' object")
   if (missing(db) || !is(db, "EnsDb"))

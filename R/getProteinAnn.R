@@ -127,7 +127,7 @@ getProteinAnn <- function(org = "hsa", update = FALSE){
   locfname <- file.path(system.file("extdata", package = "rMAUPS"),
                         paste0("uniprot_proteome_", proteome_code[org], ".tab"))
   uniprot_link <- paste0("https://www.uniprot.org/uniprot/?query=proteome:", proteome_code[org],
-                         "&format=tab&force=true&columns=id,entry%20name,reviewed,protein%20names,genes,organism,database(Ensembl),comment(SUBCELLULAR%20LOCATION),database(RefSeq)&sort=score")
+                         "&format=tab&force=true&columns=id,entry%20name,reviewed,protein%20names,genes,organism,database(Ensembl),comment(SUBCELLULAR%20LOCATION),database(RefSeq),comment(ALTERNATIVE%20PRODUCTS)&sort=score")
 
   if((!file.exists(locfname)) | update){
     ## Download protein annotation information from uniprot
@@ -139,7 +139,11 @@ getProteinAnn <- function(org = "hsa", update = FALSE){
                          quote = "", stringsAsFactors = FALSE, comment.char = "")
   suppressWarnings(try(file.remove(locfname), silent = TRUE))
   colnames(uniprot_ann) = c("Entry", "EntryName", "Status", "Name", "Gene",
-                            "Organism", "Ensembl", "Subcellular", "RefSeq")
+                            "Organism", "Ensembl", "Subcellular", "RefSeq", "Isoforms")
+  uniprot_ann$Canonical = gsub(".*IsoId=", "", gsub("; Sequence=Displayed.*", "", uniprot_ann$Isoforms))
+  uniprot_ann$Canonical[!grepl("Sequence=Displayed", uniprot_ann$Isoforms)] =
+    paste0(uniprot_ann$Entry[!grepl("Sequence=Displayed", uniprot_ann$Isoforms)], "-1")
+  rownames(uniprot_ann) = uniprot_ann$Entry
   summary = apply(uniprot_ann, 1, function(x){
     Uniprot = x[1]
     Symbols = unlist(strsplit(gsub(";$", "", x[5]), " "))
@@ -160,15 +164,8 @@ getProteinAnn <- function(org = "hsa", update = FALSE){
   summary$Uniprot = gsub(".*\\[|\\]$", "", summary$ID)
   summary$ID = gsub(" \\[.*", "", summary$ID)
   summary = summary[summary$ID!="", ]
-
-  canonical = readRDS(file.path(system.file("extdata", package = "rMAUPS"),
-                                 paste0("uniprot_canonical_", org, ".rds")))
-  # canonical = unlist(canonical)
-  # names(canonical) = gsub("-.*$", "", canonical)
-  # canonical[!grepl("-", canonical)] = paste0(canonical[!grepl("-", canonical)], "-1")
-  # saveRDS(canonical, file.path(system.file("extdata", package = "rMAUPS"),
-  #                              paste0("uniprot_canonical_", org, ".rds")))
-  summary$Uniprot[summary$Uniprot%in%names(canonical)] = canonical[summary$Uniprot[summary$Uniprot%in%names(canonical)]]
+  summary$Uniprot[!grepl("-", summary$Uniprot)] =
+    uniprot_ann[summary$Uniprot[!grepl("-", summary$Uniprot)], "Canonical"]
   summary = summary[, c("Uniprot", "DB", "ID")]
   saveRDS(summary, rdsann)
   return(summary)

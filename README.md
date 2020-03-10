@@ -10,14 +10,18 @@ install.packages("devtools")
 devtools::install_github("WubingZhang/rMAUPS")
 ```
 
+## Visualize tutorial
+```
+vignette("rMAUPS")
+```
+
 ## Availible functions
 ---
-* [x] Normalization.
-* [x] Single sample gene set analysis - GSVA, ssGSEA, PC, mean, median, fisher, Edgington, ...
-* [x] Differential expression analysis - limma, DEqMS, DESeq2, ... 
+* [x] Data quality control and normalization.
+* [x] Differential abundance analysis - limma, DEqMS, DESeq2, ... 
+* [x] Protein complex level analysis
 * [x] Pratt and MEME API.
 * [x] Protein ID - Gene ID conversion.
-* [] Imputation. (Incorporate functions in imputeLCMD)
+* [x] Imputation. (Todo: Incorporate functions in imputeLCMD)
 * [] Incoporate rMAUPS into MAUPS snakemake pipeline.
-
 ---

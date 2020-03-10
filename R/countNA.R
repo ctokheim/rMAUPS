@@ -19,7 +19,7 @@ countNA <- function(expr
   }
   ##  Count NA
   genecount <- rowSums(!is.na(exprSet))
-  gg = sapply(1:ncol(exprSet), function(x) sum(genecount>x))
+  gg = sapply(1:ncol(exprSet), function(x) sum(genecount>=x))
   gg = data.frame(Ratio = (1:ncol(exprSet)),
                   Count = gg, stringsAsFactors = FALSE)
   p = ggplot(gg, aes(Ratio, Count))
