@@ -28,6 +28,7 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
                       return = c("data.frame", "ExpressionSet")[1],
                       app.dir = "/Users/Wubing/Applications/gfold/gfold"){
   #### Create a new object ####
+  requireNamespace("Biobase")
   if(is.matrix(obj) | is.data.frame(obj)){
     obj = na.omit(obj)
     colnames(SampleAnn)[1] = "Condition"
