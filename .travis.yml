@@ -69,18 +69,19 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - conda install r
+  - conda install r r-recommended
   #- mkdir -p ~/Rlib
   #- echo 'R_LIBS=~/Rlib' > .Renviron
   - echo 'options(repos = "http://cran.rstudio.com")' > .Rprofile
   - echo '.travis.yml' > .Rbuildignore
-  - Rscript -e 'if(!"devtools" %in% rownames(installed.packages())) { install.packages("devtools", dependencies = TRUE) }'
-  - Rscript -e 'if(!"BiocManager" %in% rownames(installed.packages())) { install.packages("BiocManager", dependencies = TRUE) }'
-  #- Rscript -e 'update.packages(ask = FALSE, instlib = "~/Rlib")'
+  - conda install -c conda-forge r-devtools r-biocmanager
   - conda install -c bioconda bioconductor-clusterProfiler bioconductor-gsva 
-  - conda install -c bioconda bioconductor-deseq2 
-  - conda install -c bioconda bioconductor-limma 
-  - Rscript -e 'BiocManager::install(c("MAGeCKFlute", "msmsTests", "metap", "impute", "ggpubr")) }'
+  #- conda install -c bioconda bioconductor-deseq2 
+  #- conda install -c bioconda bioconductor-limma 
+  #- Rscript -e 'if(!"devtools" %in% rownames(installed.packages())) { install.packages("devtools", dependencies = TRUE) }'
+  #- Rscript -e 'if(!"BiocManager" %in% rownames(installed.packages())) { install.packages("BiocManager", dependencies = TRUE) }'
+  #- Rscript -e 'update.packages(ask = FALSE, instlib = "~/Rlib")'
+  - Rscript -e 'BiocManager::install(c("DESeq2", "limma", "MAGeCKFlute", "msmsTests", "metap", "impute", "ggpubr")) }'
   #- conda install -c bioconda bioconductor-msmstests bioconductor-impute bioconductor-biocstyle
   #- conda install -c bioconda bioconductor-mageckflute 
   - Rscript -e 'if(!"metap" %in% rownames(installed.packages())) { install.packages("metap", dependencies = TRUE) }'
