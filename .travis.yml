@@ -1,0 +1,64 @@
+# .travis.yml using container-based infrastructure
+
+# use c as catch-all language
+language: c
+
+# use containers
+sudo: false
+
+# only run for pushes to master branch
+branches:
+  only:
+   - master
+
+# install R: use r-packages-precise (https://cran.r-project.org/bin/linux/ubuntu/precise/) 
+# as source which is white listed (https://github.com/travis-ci/apt-source-whitelist/)
+#addons:
+  #apt:
+    #sources:
+    #- r-packages-precise
+    #packages:
+    #- r-base-dev  
+    #- r-recommended
+    #- pandoc
+
+# cache local R libraries directory:
+cache:
+  directories:
+    - ~/miniconda
+
+# install the package and dependencies:
+# - create directory for R libraries (if not already exists)
+# - create .Renviron with location of R libraries
+# - define R repository in .Rprofile
+# - add .travis.yml to .Rbuildignore
+# - install devtools if not already installed
+# - install covr if not already installed
+# - update all installed packages
+# - install package with dependencies
+install:
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
+  - bash miniconda.sh -b -p $HOME/miniconda
+  - export PATH="$HOME/miniconda/bin:$PATH"
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  # Useful for debugging any issues with conda
+  - conda info -a
+  - conda install r
+  #- mkdir -p ~/Rlib
+  #- echo 'R_LIBS=~/Rlib' > .Renviron
+  - echo 'options(repos = "http://cran.rstudio.com")' > .Rprofile
+  - echo '.travis.yml' > .Rbuildignore
+  - Rscript -e 'if(!"devtools" %in% rownames(installed.packages())) { install.packages("devtools", dependencies = TRUE) }'
+  - Rscript -e 'if(!"BiocManager" %in% rownames(installed.packages())) { install.packages("BiocManager", dependencies = TRUE) }'
+  - Rscript -e 'if(!"metap" %in% rownames(installed.packages())) { install.packages("metap", dependencies = TRUE) }'
+  - Rscript -e 'update.packages(ask = FALSE, instlib = "~/Rlib")'
+  - conda install -c bioconda bioconductor-clusterProfiler bioconductor-gsva bioconductor-deseq2 bioconductor-limma bioconductor-mageckflute bioconductor-msmstests bioconductor-impute bioconductor-ggpubr bioconductor-biocstyle
+  - Rscript -e 'devtools::install_deps(pkg = ".", dependencies = TRUE)'
+
+# Build and check package
+script:
+  - R CMD build . --no-manual
+  - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
+  - R CMD check "${PKG_FILE_NAME}" --no-manual --as-cran 
