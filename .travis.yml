@@ -85,11 +85,12 @@ install:
   - Rscript -e 'BiocManager::install(c("DESeq2", "limma"), quiet=T)'
   - Rscript -e 'BiocManager::install(c("msmsTests"))'
   - Rscript -e 'BiocManager::install(c("impute"), quiet=T)'
-  - Rscript -e 'BiocManager::install(c("MAGeCKFlute"), quiet=T)'
+  - Rscript -e 'BiocManager::install(c("MAGeCKFlute"))'
   #- conda install -c bioconda bioconductor-msmstests bioconductor-impute bioconductor-biocstyle
   #- conda install -c bioconda bioconductor-mageckflute 
   - Rscript -e 'if(!"metap" %in% rownames(installed.packages())) { install.packages("metap", dependencies = TRUE) }'
   - Rscript -e 'if(!"ggpubr" %in% rownames(installed.packages())) { install.packages("ggpubr", dependencies = TRUE) }'
+  - Rscript -e 'if(!"optparse" %in% rownames(installed.packages())) { install.packages("optparse", dependencies = TRUE) }'
   #- Rscript -e 'devtools::install_deps(pkg = ".", dependencies = TRUE)'
 
 # Build and check package
