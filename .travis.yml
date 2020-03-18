@@ -74,19 +74,20 @@ install:
   #- echo 'R_LIBS=~/Rlib' > .Renviron
   - echo 'options(repos = "http://cran.rstudio.com")' > .Rprofile
   - echo '.travis.yml' > .Rbuildignore
-  - conda install -c conda-forge r-devtools r-biocmanager
+  - conda install -c conda-forge r-devtools r-biocmanager r-ggpubr r-metap
+  - conda install -c anaconda libnetcdf
   - conda install -c bioconda bioconductor-clusterProfiler bioconductor-gsva 
   #- conda install -c bioconda bioconductor-deseq2 
   #- conda install -c bioconda bioconductor-limma 
   #- Rscript -e 'if(!"devtools" %in% rownames(installed.packages())) { install.packages("devtools", dependencies = TRUE) }'
   #- Rscript -e 'if(!"BiocManager" %in% rownames(installed.packages())) { install.packages("BiocManager", dependencies = TRUE) }'
   #- Rscript -e 'update.packages(ask = FALSE, instlib = "~/Rlib")'
-  - Rscript -e 'BiocManager::install(c("DESeq2", "limma", "MAGeCKFlute", "msmsTests", "metap", "impute", "ggpubr"))'
+  - Rscript -e 'BiocManager::install(c("DESeq2", "limma", "MAGeCKFlute", "msmsTests", "impute"))'
   #- conda install -c bioconda bioconductor-msmstests bioconductor-impute bioconductor-biocstyle
   #- conda install -c bioconda bioconductor-mageckflute 
   - Rscript -e 'if(!"metap" %in% rownames(installed.packages())) { install.packages("metap", dependencies = TRUE) }'
   - Rscript -e 'if(!"ggpubr" %in% rownames(installed.packages())) { install.packages("ggpubr", dependencies = TRUE) }'
-  - Rscript -e 'devtools::install_deps(pkg = ".", dependencies = TRUE)'
+  #- Rscript -e 'devtools::install_deps(pkg = ".", dependencies = TRUE)'
 
 # Build and check package
 script:
