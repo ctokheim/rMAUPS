@@ -22,7 +22,7 @@ arrangePngs <- function(outdir){
     rds_list = list.files(paste0(outdir, "/qc"), ".rds", full.names = TRUE)
     qc = list()
     for(rds in rds_list){
-      tmp = readRDS(rds)[c(1,2,7,4:6)]
+      tmp = readRDS(rds)[c(1:6)]
       tmp = tmp[lengths(tmp)>0]
       qc[[gsub(".*\\/|.qc.*", "", rds)]] = ggarrange(plotlist = tmp, ncol = 3)
     }
@@ -34,7 +34,7 @@ arrangePngs <- function(outdir){
     rds_list = list.files(paste0(outdir, "/imputation"), ".rds", full.names = TRUE)
     impute = list()
     for(rds in rds_list){
-      tmp = readRDS(rds)[c(1,2,7,4:6)]
+      tmp = readRDS(rds)[c(1:6)]
       tmp = tmp[lengths(tmp)>0]
       impute[[gsub(".*\\/|.qc.*", "", rds)]] = ggarrange(plotlist = tmp, ncol = 3)
     }

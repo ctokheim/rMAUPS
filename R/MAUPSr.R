@@ -51,13 +51,13 @@ MAUPSr <- function(metadata, outdir = "./", qc = TRUE,
       rowmax = round(max(rowSums(is.na(data))) / ncol(data),2)+0.01
       colmax = round(max(colSums(is.na(data))) / nrow(data),2)+0.01
       data = filterN(data)
-      imputedata = imputeNA(as.matrix(data), rowmax = rowmax,
+      imputeddata = imputeNA(as.matrix(data), rowmax = rowmax,
                             colmax = colmax, k = 5)
       dir.create(file.path(outdir, "imputation"), showWarnings = FALSE)
       tmpfile = paste0(outdir,"/imputation/", basename(gsub("\\..*",
                                         "_imputed.csv", experiment)))
-      write.csv(imputedata, tmpfile, row.names = TRUE, quote = FALSE)
-      data = imputedata
+      write.csv(imputeddata, tmpfile, row.names = TRUE, quote = FALSE)
+      data = imputeddata
       if(qc){
         plist = ProteomicsQC(data, condition = meta[colnames(data), 3],
                            proj.name = proj.name,
