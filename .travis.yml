@@ -83,7 +83,8 @@ install:
   #- Rscript -e 'if(!"BiocManager" %in% rownames(installed.packages())) { install.packages("BiocManager", dependencies = TRUE) }'
   #- Rscript -e 'update.packages(ask = FALSE, instlib = "~/Rlib")'
   - Rscript -e 'BiocManager::install(c("DESeq2", "limma"), quiet=T)'
-  - Rscript -e 'BiocManager::install(c("msmsTests", "impute"), quiet=T)'
+  - Rscript -e 'BiocManager::install(c("msmsTests"))'
+  - Rscript -e 'BiocManager::install(c("impute"), quiet=T)'
   - Rscript -e 'BiocManager::install(c("MAGeCKFlute"), quiet=T)'
   #- conda install -c bioconda bioconductor-msmstests bioconductor-impute bioconductor-biocstyle
   #- conda install -c bioconda bioconductor-mageckflute 
