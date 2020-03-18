@@ -1,87 +1,131 @@
-##' rMAUPS pipeline - QC, differential analysis, integrative analysis.
-##'
-##' @param metadata File path or data frame of the meta data, including columns of
-##' Experiment, Sample, Condition, and multiple comparisons.
-##' @param qc Boolean, specifying whether perform the quanlity control.
-##' @param outdir Output directory.
-##' @param type Could be "msms", "RNASeq", or "Arrary".
-##'
-##' @author Wubing Zhang
-##' @return No return value. Output multiple files into local folder.
-##' @export
-##'
-MAUPSr <- function(metadata, qc = TRUE, outdir = "./", type = "msms"){
+#' rMAUPS pipeline - QC, differential analysis, integrative analysis.
+#'
+#' @docType methods
+#' @name MAUPSr
+#' @rdname MAUPSr
+#'
+#' @param metadata File path or data frame of the meta data, including columns of
+#' Experiment, Sample, Condition, and multiple comparisons.
+#' @param outdir Output directory.
+#' @param qc Boolean, specifying whether perform the quanlity control.
+#' @param type Could be "msms", "RNASeq", or "Arrary".
+#'
+#' @author Wubing Zhang
+#' @return No return value. Output multiple files into local folder.
+#' @export
+#'
+MAUPSr <- function(metadata, outdir = "./", qc = TRUE, type = "msms"){
   options(stringsAsFactors = FALSE)
-  message(format(Sys.time(), "%b-%d-%Y %X "), "Reading the metadata ...")
+  if(!dir.exists(outdir)) dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
+  message(Sys.time(), " Reading the metadata ...")
   if(length(metadata)==1 && file.exists(metadata)){# Read meta file
     if(grepl(".csv$", metadata))
-      metadata = read.csv(metadata, header = TRUE)
+      metadata = read.csv(metadata, header = TRUE, quote="")
     else
-      metadata = read.table(metadata, sep = "\t", header = TRUE)
+      metadata = read.table(metadata, sep = "\t", header = TRUE,
+                            comment.char = "", quote="")
   }
 
-  message(format(Sys.time(), "%b-%d-%Y %X "), "Analyzing experiments one by one ...")
+  message(Sys.time(), " Analyzing experiments one by one ...")
   ## Analyze each data separately
   for(experiment in unique(metadata[,1])){
-    message("\t", format(Sys.time(), "%b-%d-%Y %X "), experiment, " ...")
-    data = read.csv(experiment, header = TRUE, row.names = 1)
+    message("\t", Sys.time(), " ", experiment, " ...")
+    rawdata = read.csv(experiment, header = TRUE, row.names = 1)
     meta = metadata[metadata[,1]==experiment, ]
     rownames(meta) = meta[,2]
     meta = meta[, colSums(is.na(meta))<nrow(meta)]
+    data = rawdata[, rownames(meta)]
     proj.name = gsub(".*\\/|_normdata.*|\\..*", "", experiment)
-    if(qc) plist = qcProteomics(data, condition = meta[colnames(data), 3],
-                                proj.name = proj.name, outdir = outdir)
+    dir.create(file.path(outdir, "qc"), showWarnings = FALSE)
+    if(qc){
+      plist = ProteomicsQC(data, condition = meta[colnames(data), 3],
+                           proj.name = proj.name,
+                           outdir = file.path(outdir, "qc"))
+      saveRDS(plist, paste0(outdir, "/qc/", proj.name, ".qc.rds"))
+    }
+
     if(sum(is.na(data))>0){
       rowmax = round(max(rowSums(is.na(data))) / ncol(data),2)+0.01
       colmax = round(max(colSums(is.na(data))) / nrow(data),2)+0.01
       data = filterN(data)
-      imputedata = imputeNA(as.matrix(data), rowmax = rowmax, colmax = colmax, k = 5)
-      tmpfile = paste0(outdir,"/",basename(gsub("\\..*", "_imputed.csv", experiment)))
+      imputedata = imputeNA(as.matrix(data), rowmax = rowmax,
+                            colmax = colmax, k = 5)
+      dir.create(file.path(outdir, "imputation"), showWarnings = FALSE)
+      tmpfile = paste0(outdir,"/imputation/", basename(gsub("\\..*",
+                                        "_imputed.csv", experiment)))
       write.csv(imputedata, tmpfile, row.names = TRUE, quote = FALSE)
       data = imputeddata
+      if(qc){
+        plist = ProteomicsQC(data, condition = meta[colnames(data), 3],
+                           proj.name = proj.name,
+                           outdir = file.path(outdir, "imputation"))
+        saveRDS(plist, paste0(outdir, "/imputation/", proj.name, ".qc.rds"))
+      }
     }
     comparisons = grep("comparison", colnames(meta),
                        ignore.case = TRUE, value = TRUE)
     for(comp in comparisons){
+      dir.create(file.path(outdir, comp), showWarnings = FALSE)
       prefix = paste0(proj.name, ".", comp)
       SA = meta[!is.na(meta[,comp]), comp, drop = FALSE]
-      message("\t", format(Sys.time(), "%b-%d-%Y %X "), comp, " ...")
+      message("\t", Sys.time(), " ", comp, " ...")
       method = ifelse(grepl("RNA", type), "DESeq2", "limma")
+      psm.p = NULL
+      if(sum(grepl("PSMs", colnames(rawdata)))>0){
+        colnames(SA) = "Condition"
+        design = model.matrix(~1+Condition, SA)
+        rownames(design) = rownames(SA)
+        fit = eBayes(lmFit(data[,rownames(design)], design, na.rm=TRUE))
+        fit$count = rawdata[rownames(fit$coefficients),
+                            grep("PSMs", colnames(rawdata), value = TRUE)[1]]
+        fit2 = SpectraCounteBayes(fit)
+        psm.p = VarianceBoxplot(fit2,n=30, main=prefix)
+        ggsave(paste0(outdir,"/",comp,"/",prefix,"_var_boxplot.png"),
+               psm.p, width = 6, height = 5)
+      }
       deres_p = DEAnalyze(data, SA, type = type, method = method)
-      write.csv(deres_p, paste0(outdir,"/",prefix, "_dep.csv"),
+      write.csv(deres_p, paste0(outdir,"/",comp,"/",prefix,"_dep.csv"),
                 row.names = TRUE, quote = FALSE)
       deres_p$logP = -log(deres_p$pvalue)
       p1 = ScatterView(deres_p, x = "log2FC", y = "logP",
                        model = "volcano", x_cut = c(-0.2,0.2), force = 5,
-                       top = 5, ylab = "-log10(p.value)")
+                       top = 5, ylab = "-log10(p.value)",
+                       main = paste0(prefix, "(Gene)"))
       p1 = p1 + theme(legend.position = "none")
-      ggsave(paste0(outdir,"/",prefix, "_dep_volcano.png"),
+      ggsave(paste0(outdir,"/",comp,"/",prefix, "_dep_volcano.png"),
              p1, width = 6, height = 5)
 
-      res = deComplex(deres_p)
-      write.csv(res$deComplex, paste0(outdir,"/",prefix, "_dePathway.csv"),
+      res = DeComplex(deres_p)
+      write.csv(res$deComplex, paste0(outdir,"/",comp,"/",prefix, "_dePathway.csv"),
                 row.names = TRUE, quote = FALSE)
-      ggsave(paste0(outdir,"/",prefix, "_deBP_volcano.png"),
+      res$gobp.p = res$gobp.p + labs(title = paste0(prefix, "(BP)"))
+      res$reactome.p = res$reactome.p + labs(title = paste0(prefix, "(REACTOME)"))
+      res$gocc.p = res$gocc.p + labs(title = paste0(prefix, "(CC)"))
+      res$corum.p = res$corum.p + labs(title = paste0(prefix, "(CORUM)"))
+      ggsave(paste0(outdir,"/",comp,"/",prefix, "_deBP_volcano.png"),
              res$gobp.p, width = 6, height = 5)
-      ggsave(paste0(outdir,"/",prefix, "_deREACTOME_volcano.png"),
+      ggsave(paste0(outdir,"/",comp,"/",prefix, "_deREACTOME_volcano.png"),
              res$reactome.p, width = 6, height = 5)
-      ggsave(paste0(outdir,"/",prefix, "_deCC_volcano.png"),
+      ggsave(paste0(outdir,"/",comp,"/",prefix, "_deCC_volcano.png"),
              res$gocc.p, width = 6, height = 5)
-      ggsave(paste0(outdir,"/",prefix, "_deCC_volcano.png"),
+      ggsave(paste0(outdir,"/",comp,"/",prefix, "_deCORUM_volcano.png"),
              res$corum.p, width = 6, height = 5)
+      res$dep.p = p1
+      res$psm.p = psm.p
+      saveRDS(res, paste0(outdir,"/",comp,"/",prefix, ".rds"))
     }
   }
   ## Merge the same comparisons in different experiments
-  message(format(Sys.time(), "%b-%d-%Y %X "),
-          "Merge the same comparisons in different experiments ...")
-  comparisons = grep("comparison", colnames(metadata), ignore.case = TRUE, value = TRUE)
+  message(Sys.time(), " Merge the same comparisons in different experiments ...")
+  comparisons = grep("comparison", colnames(metadata),
+                     ignore.case = TRUE, value = TRUE)
   for(comp in comparisons){
     experiments = unique(metadata[!is.na(metadata[,comp]),1])
     if(length(experiments)>1){
-      message("\t", format(Sys.time(), "%b-%d-%Y %X "), comp, " ...")
+      message("\t", Sys.time(), " ", comp, " ...")
       proj.names = gsub(".*\\/|_normdata.*|\\..*", "", experiments)
       prefix = paste0(proj.names, ".", comp)
-      DEPs = paste0(outdir,"/",prefix, "_dep.csv")
+      DEPs = paste0(outdir,"/",comp,"/",prefix, "_dep.csv")
       summary = data.frame()
       for(r in DEPs){
         tmp = read.csv(r, row.names = 1, header = TRUE)
@@ -89,7 +133,8 @@ MAUPSr <- function(metadata, qc = TRUE, outdir = "./", type = "msms"){
         summary = cbind(summary[proteins,], tmp[proteins, c(1,4)])
         rownames(summary) = proteins
       }
-      colnames(summary) = paste0(rep(proj.names,each=2), ".", rep(c("log2FC", "pvalue"),length(DEPs)))
+      colnames(summary) = paste0(rep(proj.names,each=2), ".",
+                                 rep(c("log2FC", "pvalue"),length(DEPs)))
       mergedDep = t(apply(summary, 1, function(x){
         lfc = x[seq(1, length(x),2)]; pval = x[seq(2, length(x),2)]
         lfc = lfc[!is.na(lfc)]; pval = pval[!is.na(pval)]
@@ -99,19 +144,36 @@ MAUPSr <- function(metadata, qc = TRUE, outdir = "./", type = "msms"){
       }))
       mergedDep = as.data.frame(mergedDep, stringsAsFactors = FALSE)
       colnames(mergedDep) = c("Zscore", "pvalue")
-      write.csv(mergedDep, paste0(outdir,"/", comp, "_merged.dep.csv"), quote = FALSE)
+      write.csv(mergedDep, paste0(outdir,"/",comp,"/",comp, "_merged.dep.csv"), quote = FALSE)
+      mergedDep$logP = -log10(mergedDep$pvalue)
+      p1 = ScatterView(mergedDep, x = "Zscore", y = "logP",
+                       model = "volcano", x_cut = c(-0.2,0.2), force = 5,
+                       top = 5, ylab = "-log10(p.value)",
+                       main = paste0(prefix, "(Gene)"))
+      p1 = p1 + theme(legend.position = "none")
+      ggsave(paste0(outdir,"/", comp,"/", comp, "_merged_dep_volcano.png"),
+             p1, width = 6, height = 5)
 
-      res = deComplex(mergedDep, lfc = "Zscore")
-      write.csv(res$deComplex, paste0(outdir,"/", comp, "_merged.dePathway.csv"),
+      res = DeComplex(mergedDep, lfc = "Zscore")
+      res$gobp.p = res$gobp.p + labs(title = paste0(prefix, "(BP)"))
+      res$reactome.p = res$reactome.p + labs(title = paste0(prefix, "(REACTOME)"))
+      res$gocc.p = res$gocc.p + labs(title = paste0(prefix, "(CC)"))
+      res$corum.p = res$corum.p + labs(title = paste0(prefix, "(CORUM)"))
+      write.csv(res$deComplex, paste0(outdir,"/",comp,"/", comp, "_merged.dePathway.csv"),
                 row.names = TRUE, quote = FALSE)
-      ggsave(paste0(outdir,"/", comp, "_merged_deBP_volcano.png"),
+      ggsave(paste0(outdir,"/", comp,"/", comp, "_merged_deBP_volcano.png"),
              res$gobp.p, width = 6, height = 5)
-      ggsave(paste0(outdir,"/", comp, "_merged_deREACTOME_volcano.png"),
+      ggsave(paste0(outdir,"/", comp,"/", comp, "_merged_deREACTOME_volcano.png"),
              res$reactome.p, width = 6, height = 5)
-      ggsave(paste0(outdir,"/", comp, "_merged_deCC_volcano.png"),
+      ggsave(paste0(outdir,"/", comp,"/", comp, "_merged_deCC_volcano.png"),
              res$gocc.p, width = 6, height = 5)
-      ggsave(paste0(outdir,"/", comp, "_merged_deCORUM_volcano.png"),
+      ggsave(paste0(outdir,"/", comp,"/", comp, "_merged_deCORUM_volcano.png"),
              res$corum.p, width = 6, height = 5)
+      res$dep.p = p1
+      saveRDS(res, paste0(outdir,"/", comp,"/", comp, "_merged.rds"))
     }
   }
+  message(Sys.time(), " Arrange figures for visualization ...")
+  pnglist = arrangePngs(outdir)
+  saveRDS(pnglist, paste0(outdir,"/", "summary_list.rds"))
 }

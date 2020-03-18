@@ -1,64 +1,87 @@
-## ----setup, include=FALSE------------------------------------------------
+## ----setup, include=FALSE--------------------------------------------------
 knitr::opts_chunk$set(echo = TRUE)
 
-## ----install, eval=FALSE-------------------------------------------------
-#  install.packages(c("BiocManager", "devtools", "ggplot2"))
+## ----install, eval=FALSE---------------------------------------------------
+#  install.packages(c("BiocManager", "devtools"))
 #  BiocManager::install("MAGeCKFlute")
+#  # OR devtools::install_bitbucket("MAGeCKFlute")
 #  devtools::install_bitbucket("liulab/rMAUPS")
 
-## ----libs----------------------------------------------------------------
-library(rMAUPS)
+## ----libs------------------------------------------------------------------
 library(MAGeCKFlute)
 library(ggplot2)
+library(rMAUPS)
 
-## ----preprocess, eval=FALSE----------------------------------------------
-#  folder = "examples/rawdata/"
-#  normalizeProteomeDiscoverer(folder, log2 = TRUE)
+## ----preprocess------------------------------------------------------------
+## Process multiple datasets in a folder
+datapath = system.file("extdata", package = "rMAUPS")
+list.files(datapath)
+normalizeProteomeDiscoverer(datapath, output = "./", log2 = TRUE)
 
-## ----pipeline, eval=FALSE------------------------------------------------
-#  ## Download test data from bitbucket
-#  setwd("testdata")
-#  MAUPSr(metadata = "metadata.csv", outdir = "../analysis/")
+## Process one dataset
+normdata = normalizeProteomeDiscoverer(file.path(datapath, "experiment1_export_proteins.txt"), log2 = TRUE, return = TRUE)
+head(normdata)
 
-## ----readData------------------------------------------------------------
-data("testdata")
-head(testdata)
-meta = data.frame(row.names = colnames(testdata),
-                  Condition = gsub(".*\\.", "", colnames(testdata)),
-                  stringsAsFactors = FALSE)
-meta
+## ----readData--------------------------------------------------------------
+metadata = read.csv(file.path(datapath, "metadata.csv"))
+head(metadata)
 
-## ----qc------------------------------------------------------------------
-p = ViolinView(testdata, ylab = "Protein abundance")
+## ----pipeline, eval=FALSE--------------------------------------------------
+#  MAUPSr(system.file("extdata", "metadata.csv", package = "rMAUPS"), outdir = "analysis/")
+#  ## Or
+#  MAUPSr(metadata, outdir = "analysis/")
+#  ## Visualize the results on a webpage
+#  view("analysis/")
+
+## ----qc--------------------------------------------------------------------
+data = normdata[,-1]
+p = ViolinView(data, ylab = "Protein abundance")
 p = p + theme(axis.text.x = element_text(angle = 40, hjust = 1, vjust = 1))
 p
-
-p = pcView(testdata, meta$Condition)
+meta = metadata[metadata$Experiment=="experiment1_normdata.csv", -1]
+rownames(meta) = meta[,1]
+p = pcView(data, meta[colnames(data), 2])
 p
 
-## ----imputation----------------------------------------------------------
-## Randomly assign 10% values to be NA
-testdata = as.matrix(testdata)
-simulated = testdata
+## --------------------------------------------------------------------------
+data = as.matrix(data)
+simulated = data
 idx = sample(1:length(simulated), round(0.1*length(simulated)))
 simulated[idx] = NA
-## Impute missing values using KNN
+
+## ----imputation------------------------------------------------------------
+gg = data.frame(gene = rownames(simulated), NAs = rowSums(is.na(simulated)))
+p1 = DensityView(gg[,2,drop=FALSE], xlab = "The number of missing value")
+p1 + theme(legend.position = "none")
+gg = data.frame(sample = colnames(simulated), Detection = colSums(!is.na(simulated)))
+p2 = DensityView(gg[,2,drop=FALSE], xlab = "The number of detected gene")
+p2 + theme(legend.position = "none")
+p3 = BarView(gg, "sample", "Detection", fill = "#8da0cb",
+             ylab = "The number of detected gene")
+p3 + theme(axis.text.x = element_text(angle = 40, hjust = 1, vjust = 1))
+
+## --------------------------------------------------------------------------
 imputed = imputeNA(simulated)
-plot(imputed[idx], testdata[idx])
+plot(imputed[idx], data[idx])
 
-## ----dep-----------------------------------------------------------------
+## ----dep-------------------------------------------------------------------
 ## Limma
-deres = DEAnalyze(testdata, meta, type = "msms", method = "limma")
+deres = DEAnalyze(data, meta[,-1], type = "msms", method = "limma")
 VolcanoView(deres, "log2FC", "padj", x_cutoff = 0.3, y_cutoff = 0.1)
+# Or
+deres$logFDR = log10(deres$padj)
+ScatterView(deres, x = "log2FC", y = "logFDR", 
+            x_cut = c(-0.5,0.5), y_cut = -2, 
+            groups = c("bottomleft", "bottomright"), top = 5)
 
-## ----decomplex-----------------------------------------------------------
-res = deComplex(deres)
+## ----decomplex-------------------------------------------------------------
+res = DeComplex(deres)
 head(res$deComplex)
 res$gobp.p
 res$reactome.p
 res$gocc.p
 res$corum.p
 
-## ----sessionInfo, echo=FALSE---------------------------------------------
+## ----sessionInfo, echo=FALSE-----------------------------------------------
 sessionInfo()
 

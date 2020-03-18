@@ -1,14 +1,20 @@
 #' Preprocessing MS/MS datasets
 #'
+#' @docType methods
+#' @name processMSdata
+#' @rdname processMSdata
+#'
 #' @param proData Proteomics data with rows as gene names and columns as samples
 #' @param rnaData Relevant RNAseq datasets for better imputation.
 #' @param id The type of gene ids in the input data.
 #' @param org Organism.
+#' @param k An integer.
+#'
 #' @return A list including QC figures and intermediate results.
+#'
 #' @author Wubing Zhang
 #'
 processMSdata <- function(proData, rnaData = NULL, id = "Symbol", org = "hsa", k = 3){
-  require(rMAUPS)
   message(Sys.time(), " # Transfer ", id, " to Entrez ids ...")
   tmp = TransGeneID(rownames(proData), fromType = id, toType = "Entrez", organism = org)
   idx = is.na(tmp) | duplicated(tmp)

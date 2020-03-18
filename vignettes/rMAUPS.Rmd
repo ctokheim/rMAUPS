@@ -2,14 +2,14 @@
 title: "Model-based Analysis of Ubiquitin Proteasome System"
 author:
 - name: Wubing Zhang
-  affiliation: Dana-Farber Cancer Institute & Tongji University
-package: rMAUPS
+  affiliation: Dana-Farber Cancer Institute
+package: "rMAUPS - 0.1.1"
 output:
   BiocStyle::html_document
 abstract: |
-  Integrative analysis of proteomics and other omics data
+  Advances in proteomic profiling have enabled the study of protein regulation and degradation in diseases such as cancer. However, there are major computational challenges, such as how to perform quality control (QC) and normalization, how to identify differential protein abundance at multiple-levels of resolution (e.g. protein complexes), and how to integrate data with other omic technologies. Here, we developed a computational analysis pipeline Model-based Analysis of the Ubiquitin-Proteasome System using R (rMAUPS), which performs computational analysis of proteomics data efficiently and effectively. rMAUPS comprises four significant modules, including quality control (QC), imputation, differential analysis, and integrative analysis.
 vignette: |
-  %\VignetteIndexEntry{Integrative analysis of proteomics and other omics data}
+  %\VignetteIndexEntry{rMAUPS}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -20,74 +20,109 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Install required packages
 ```{r install, eval=FALSE}
-install.packages(c("BiocManager", "devtools", "ggplot2"))
+install.packages(c("BiocManager", "devtools"))
 BiocManager::install("MAGeCKFlute")
+# OR devtools::install_bitbucket("MAGeCKFlute")
 devtools::install_bitbucket("liulab/rMAUPS")
 ```
 
 
 ## load required packages
 ```{r libs}
-library(rMAUPS)
 library(MAGeCKFlute)
 library(ggplot2)
+library(rMAUPS)
 ```
 
-## Data preparation and processing
-```{r preprocess, eval=FALSE}
-folder = "examples/rawdata/"
-normalizeProteomeDiscoverer(folder, log2 = TRUE)
+## LC-MS/MS dataset
+The rMAUPS package includes two real LC-MS/MS data files ending with "export_proteins.txt", which are exported from the Proteome Discoverer software. Here, we will take the two datasets as an example to describe how to analyze the data using the rMAUPS pipeline. Before running the pipeline, the data can be preprocessed into a tidy format using the function `normalizeProteomeDiscoverer`. 
+
+```{r preprocess}
+## Process multiple datasets in a folder
+datapath = system.file("extdata", package = "rMAUPS")
+list.files(datapath)
+normalizeProteomeDiscoverer(datapath, output = "./", log2 = TRUE)
+
+## Process one dataset
+normdata = normalizeProteomeDiscoverer(file.path(datapath, "experiment1_export_proteins.txt"), log2 = TRUE, return = TRUE)
+head(normdata)
 ```
 
-## Quick run
+## Metadata configuration
+To run the rMAUPS pipeline, a metadata is required. The metadata should include the path to the datasets, list of samples and their experimental conditions, and design matrix of the comparisons. 
+```{r readData}
+metadata = read.csv(file.path(datapath, "metadata.csv"))
+head(metadata)
+```
+
+## Run the pipeline
+After preprocessing the data and configuring the metadata, it's ready to run the pipeline using one-line command.
 ```{r pipeline, eval=FALSE}
-## Download test data from bitbucket
-setwd("testdata")
-MAUPSr(metadata = "metadata.csv", outdir = "../analysis/")
+MAUPSr(system.file("extdata", "metadata.csv", package = "rMAUPS"), outdir = "analysis/")
+## Or
+MAUPSr(metadata, outdir = "analysis/")
+## Visualize the results on a webpage
+view("analysis/")
 ```
 
 ## Step-by-step analysis of proteomics
-```{r readData}
-data("testdata")
-head(testdata)
-meta = data.frame(row.names = colnames(testdata),
-                  Condition = gsub(".*\\.", "", colnames(testdata)),
-                  stringsAsFactors = FALSE)
-meta
-```
 
 ### Data quality control and normalization
 ```{r qc}
-p = ViolinView(testdata, ylab = "Protein abundance")
+data = normdata[,-1]
+p = ViolinView(data, ylab = "Protein abundance")
 p = p + theme(axis.text.x = element_text(angle = 40, hjust = 1, vjust = 1))
 p
-
-p = pcView(testdata, meta$Condition)
+meta = metadata[metadata$Experiment=="experiment1_normdata.csv", -1]
+rownames(meta) = meta[,1]
+p = pcView(data, meta[colnames(data), 2])
 p
 ```
 
 ### Imputation
-```{r imputation}
-## Randomly assign 10% values to be NA
-testdata = as.matrix(testdata)
-simulated = testdata
+
+##### To give an example about the imputation step, we randomly assigned 10% values to be NA in the data.
+```{r}
+data = as.matrix(data)
+simulated = data
 idx = sample(1:length(simulated), round(0.1*length(simulated)))
 simulated[idx] = NA
-## Impute missing values using KNN
+```
+
+##### Before imputation, we analyzed the distribution of the missing values across samples.
+```{r imputation}
+gg = data.frame(gene = rownames(simulated), NAs = rowSums(is.na(simulated)))
+p1 = DensityView(gg[,2,drop=FALSE], xlab = "The number of missing value")
+p1 + theme(legend.position = "none")
+gg = data.frame(sample = colnames(simulated), Detection = colSums(!is.na(simulated)))
+p2 = DensityView(gg[,2,drop=FALSE], xlab = "The number of detected gene")
+p2 + theme(legend.position = "none")
+p3 = BarView(gg, "sample", "Detection", fill = "#8da0cb",
+             ylab = "The number of detected gene")
+p3 + theme(axis.text.x = element_text(angle = 40, hjust = 1, vjust = 1))
+```
+
+##### Imputation using KNN
+```{r}
 imputed = imputeNA(simulated)
-plot(imputed[idx], testdata[idx])
+plot(imputed[idx], data[idx])
 ```
 
 ### Differential expression analysis
 ```{r dep}
 ## Limma
-deres = DEAnalyze(testdata, meta, type = "msms", method = "limma")
+deres = DEAnalyze(data, meta[,-1], type = "msms", method = "limma")
 VolcanoView(deres, "log2FC", "padj", x_cutoff = 0.3, y_cutoff = 0.1)
+# Or
+deres$logFDR = log10(deres$padj)
+ScatterView(deres, x = "log2FC", y = "logFDR", 
+            x_cut = c(-0.5,0.5), y_cut = -2, 
+            groups = c("bottomleft", "bottomright"), top = 5)
 ```
 
 ### Differential expression of pathways/complexes
 ```{r decomplex}
-res = deComplex(deres)
+res = DeComplex(deres)
 head(res$deComplex)
 res$gobp.p
 res$reactome.p

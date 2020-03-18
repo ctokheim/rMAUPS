@@ -1,5 +1,9 @@
 #' Run MEME using R
 #'
+#' @docType methods
+#' @name MemeR
+#' @rdname MemeR
+#'
 #' @param sequences a list of sequences.
 #' @param background a list of control sequences.
 #' @param outdir name of directory for output files.
@@ -30,6 +34,7 @@
 #' @param searchsize maximum portion of primary dataset to use for motif search (in characters).
 #' @param alph sequences use DNA/RNA/protein alphabet.
 #' @param revcomp allow sites on + or - DNA strands.
+#' @param alphfile the path to the alphfile.
 #' @param mod distribution of motifs.
 #' @param nmotifs maximum number of motifs to find.
 #' @param evt stop if motif E-value greater than <evt>.
@@ -43,11 +48,12 @@
 #' @param noendgaps do not count end gaps in multiple alignments.
 #' @param maxiter maximum EM iterations to run.
 #' @param prior type of prior to use.
+#' @param api the path to the meme application.
 #'
 #' @export
 #' @importFrom data.table fread
 #'
-memeR <- function(sequences, background = NULL, outdir = "./",
+MemeR <- function(sequences, background = NULL, outdir = "./",
                   objfun = c("classic", "de", "se", "cd", "ce")[1],
                   test = c("mhg", "mbn", "mrs")[1],
                   shuf = 10, seed = 50, hsfrac = 0.5, cefrac = 0.25,

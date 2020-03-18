@@ -1,13 +1,21 @@
-##' Calculate score across genes and samples
-##'
-##' This wrapper function combines filtering out genes with low reads in a number of samples (recommended for limma:voom) with normalization
-##' @param gm normalized count matrix; rows are all genes in the signature that shall be summarized into one score; columns are samples
-##' @param gset Gene sets.
-##' @param fun ("PC", default), Pearson, ssGSEA or mean (other value). fisher, stouffer
-##' @return numeric vector or matrix.
-##' @author Wubing Zhang
-##' @import GSVA metap
-##' @export
+#' Calculate score across genes and samples
+#'
+#' This wrapper function combines filtering out genes with low reads in a number of
+#' samples (recommended for limma:voom) with normalization
+#'
+#' @docType methods
+#' @name gsScore
+#' @rdname gsScore
+#'
+#' @param dat normalized count matrix; rows are all genes in the signature that shall be summarized into one score; columns are samples
+#' @param gset Gene sets.
+#' @param fun ("PC", default), Pearson, ssGSEA or mean (other value). fisher, stouffer
+#' @return numeric vector or matrix.
+#' @author Wubing Zhang
+#' @importFrom GSVA gsva
+#' @importFrom metap sumlog
+#' @importFrom matrixStats colMedians
+#' @export
 gsScore <- function(dat, gset, fun="PC") {
   if(tolower(fun) == "ssgsea"){
     gss <- gsva(dat, gset, method="ssgsea")

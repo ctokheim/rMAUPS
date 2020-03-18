@@ -1,7 +1,9 @@
 #' Correlation between RNAseq and Protein
+#'
 #' @docType methods
 #' @name DataCorrelation
 #' @rdname DataCorrelation
+#'
 #' @param ds1 Path to protein abundance data
 #' @param ds2 Path to RNAseq data
 #' @param method One of "pearson", "kendall", or "spearman" (default).
@@ -9,6 +11,7 @@
 #' @import ggplot2 ggpubr
 #' @author Wubing Zhang
 #' @export
+
 DataCorrelation <- function(ds1, ds2, method="spearman"
                             # , filename = NULL, width = 5, height = 4, ...
                             ){
@@ -40,8 +43,8 @@ DataCorrelation <- function(ds1, ds2, method="spearman"
   RNA_sub <- RNA[overlap_gene, overlap_sample]
 
   ## Sample correlation
-  corvalues_s = diag(cor(Protein_sub, RNA_sub, method = method))
-  corvalues_g = diag(cor(t(Protein_sub), t(RNA_sub), method = method))
+  corvalues_s = diag(cor(Protein_test, RNA_test, method = method))
+  corvalues_g = diag(cor(t(Protein_test), t(RNA_test), method = method))
   gg = data.frame(Cor = c(corvalues_s, corvalues_g),
                   Type = rep(c("Sample", "Gene"), c(com_sample, com_gene)))
   p = ggplot(gg, aes(Cor, color = Type))
@@ -52,4 +55,3 @@ DataCorrelation <- function(ds1, ds2, method="spearman"
   #   ggsave(filename, p, width = width, height = height, ...)
   return(p)
 }
-

@@ -1,65 +1,84 @@
 #' Normalization of ProteomeDiscoverer-exported proteomic data
 #'
-#' @param prot File path (or data frame) of proteomic data,
+#' @docType methods
+#' @name normalizeProteomeDiscoverer
+#' @rdname normalizeProteomeDiscoverer
+#'
+#' @param prot A file (or folder) path of proteomics data. Or a data frame of proteomics data,
 #' which includes columns of "Contaminant", "Number of unique peptides",
 #' "Gene Symbol", and protein abundance of samples.
+#' @param output The path to the output file or directory (when \code{prot} is a folder path).
 #' @param norm method for normalization.
 #' @param log2 Boolean, whether perform log2 transformation.
+#' @param return Boolean, whether return the data object.
 #'
-#' @return A matrix or output a csv file to local folder.
+#' @return A data frame.
 #' @author Wubing Zhang
 #' @export
 #'
-normalizeProteomeDiscoverer <- function(prot, norm = "median", log2 = FALSE,
-                                        outfile = NULL){
-  if(length(prot)==1 && dir.exists(prot)){# Process all export data in a folder
+normalizeProteomeDiscoverer <- function(prot, output = NULL,
+                                        norm = "median", log2 = FALSE,
+                                        return = FALSE){
+  if(class(prot)=="character" && dir.exists(prot)){# Process all export data in a folder
     files = list.files(prot, pattern = "export.*txt$", full.names = TRUE)
     for(f in files){
-      outfile = basename(gsub("export.*txt$", "normdata.csv", f))
-      normalizeProteomeDiscoverer(f, norm, log2, outfile)
+      outfile = basename(gsub("export.*", "normdata.csv", f))
+      if(!is.null(output)) outfile = file.path(output, outfile)
+      tmp = normalizeProteomeDiscoverer(f, output = outfile, norm = norm, log2 = log2)
     }
-  }else if(length(prot)==1 && file.exists(prot)){# Process an export data
+    return(TRUE)
+  }else if(class(prot)=="character" && file.exists(prot)){# Process an export data
     message(format(Sys.time(), "%b-%d-%Y %X "), "Processing ", prot)
-    prot = read.table(prot, sep = "\t", header = TRUE,
-                         stringsAsFactors = FALSE, comment.char = "")
-  }
+    dd = read.table(prot, sep = "\t", header = TRUE,
+                    stringsAsFactors = FALSE, comment.char = "")
+  }else if(is.data.frame(prot)){
+    dd = prot
+  }else{return()}
+
   # Remove protein contaminants
-  idx1 = toupper(prot$Contaminant)!="TRUE"
+  idx1 = toupper(dd$Contaminant)!="TRUE"
   # Remove data with unique peptides below threshold
-  idx2 = prot[,grep("Unique.*Peptides",
-                       colnames(prot), value = TRUE)]>=2
-  prot <- prot[idx1&idx2, ]
+  idx2 = dd[,grep("Unique.*Peptides", colnames(dd), value = TRUE)]>=2
+  dd <- dd[idx1&idx2, ]
 
   # Identify and count reporter ion channels
-  channels <- grep("^Abundance.*Sample", colnames(prot), value=TRUE)
-  df <- prot[, channels]
+  channels <- grep("^Abundance.*Sample", colnames(dd), value=TRUE)
+  psm <- grep("PSMs", colnames(dd), value=TRUE)[1]
+  df <- dd[, c(psm, channels)]
 
-  genename = grep("symbol",colnames(prot), value = TRUE, ignore.case = TRUE)
-  dupgenes = prot[, genename][duplicated(prot[, genename])]
+  genename = grep("symbol",colnames(dd), value = TRUE, ignore.case = TRUE)
+  dupgenes = dd[, genename][duplicated(dd[, genename])]
   dupdf = t(sapply(unique(dupgenes), function(g){
-    idx = prot[, genename]==g
+    idx = dd[, genename]==g
     colMeans(df[idx, , drop = FALSE], na.rm = TRUE)
   }))
-  idx = prot[, genename] %in% dupgenes
+  idx = dd[, genename] %in% dupgenes
   df = rbind.data.frame(df[!idx, ], dupdf)
-  rownames(df) <- c(prot[!idx, genename], rownames(dupdf))
+  allgenes <- c(dd[!idx, genename], rownames(dupdf))
+  idx = is.na(allgenes) | duplicated(allgenes) | allgenes==""
+  df = df[!idx, ]
+  rownames(df) <- allgenes[!idx]
   colnames(df) <- gsub("Abundance.|Sample.", "", colnames(df))
-
+  df[,1] = round(df[,1])
+  colnames(df)[1] = "PSMs"
   # Remove data with NAs or low sum of reporter ion intensities
-  idx1 <- rowSums(df, na.rm = TRUE)>0
+  idx1 <- rowSums(df[,-1], na.rm = TRUE)>0
   df <- df[idx1, ]
 
-  normdf = normalizeMS(df, norm, log2)
+  normdf = df
+  normdf[,-1] = normalizeProteomics(df[,-1], norm, log2)
   normdf = as.data.frame(normdf, stringsAsFactors = FALSE)
-  if(!is.null(outfile)){
-    write.csv(normdf, outfile, row.names = TRUE, quote = FALSE)
-    return(TRUE)
-  }else{
-    return(normdf)
+  if(!is.null(output)){
+    write.csv(normdf, output, row.names = TRUE, quote = FALSE)
   }
+  if(return) return(normdf) else return(TRUE)
 }
 
 #' Normalize Fisher's data
+#'
+#' @docType methods
+#' @name normalizeProteomics
+#' @rdname normalizeProteomics
 #'
 #' @param df A matrix-like object.
 #' @param norm method for normalization, such as none, median, medianratio, scale, robustz, quantile, loess.

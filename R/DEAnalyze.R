@@ -20,7 +20,13 @@
 #'
 #' @author Wubing Zhang
 #'
-#' @import limma DESeq2 msmsTests Biobase edgeR
+#' @import Biobase
+#' @importFrom limma lmFit eBayes topTable voom
+#' @importFrom DESeq2 DESeqDataSetFromMatrix DESeq lfcShrink
+#' @importFrom msmsTests msms.glm.pois msms.glm.qlll msms.edgeR
+#' @importFrom edgeR DGEList calcNormFactors
+#' @importFrom MSnbase MSnSet
+#' @importFrom msmsEDA pp.msms.data
 #' @export
 
 DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
@@ -28,7 +34,6 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
                       return = c("data.frame", "ExpressionSet")[1],
                       app.dir = "/Users/Wubing/Applications/gfold/gfold"){
   #### Create a new object ####
-  requireNamespace("Biobase")
   if(is.matrix(obj) | is.data.frame(obj)){
     obj = na.omit(obj)
     colnames(SampleAnn)[1] = "Condition"

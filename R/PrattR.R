@@ -1,5 +1,9 @@
 #' Automatically run Pratt and parse the results
 #'
+#' @docType methods
+#' @name prattR
+#' @rdname prattR
+#'
 #' @param sequences A vector of sequences.
 #' @param api The path to pratt.py API.
 #' @param minPerc the minimum percentage of the input sequences that should match a pattern.
@@ -19,7 +23,7 @@
 #' @export
 #' @importFrom data.table fread
 #'
-PrattR <- function(sequences, api = "/Users/Wubing/Jobs/Project/UPS/_Code/pratt.py",
+prattR <- function(sequences, api = "/Users/Wubing/Jobs/Project/UPS/_Code/pratt.py",
                    minPerc = 20, maxPatternLength = 15,
                    maxNumPatternSymbols = maxPatternLength,
                    maxNumWildcard = 9, maxNumFlexSpaces = 7,
