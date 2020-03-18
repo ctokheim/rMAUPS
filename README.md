@@ -7,11 +7,12 @@
 ```
 BiocManager::install(c("clusterProfiler", "GSVA", "DESeq2", "limma", "MAGeCKFlute", "msmsTests", "metap", "impute", "ggpubr"))
 install.packages("devtools")
-devtools::install_bitbucket("liulab/rMAUPS")
+devtools::install_github("WubingZhang/rMAUPS")
 ```
 
 ## Visualize tutorial
 For detail documentation, please visit http://cistrome.org/~wubing/rMAUPS.html or run the following command line.
+
 ```
 library(rMAUPS)
 vignette("rMAUPS")
