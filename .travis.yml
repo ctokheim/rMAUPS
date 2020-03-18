@@ -76,9 +76,9 @@ install:
   - echo '.travis.yml' > .Rbuildignore
   - Rscript -e 'if(!"devtools" %in% rownames(installed.packages())) { install.packages("devtools", dependencies = TRUE) }'
   - Rscript -e 'if(!"BiocManager" %in% rownames(installed.packages())) { install.packages("BiocManager", dependencies = TRUE) }'
-  - Rscript -e 'if(!"metap" %in% rownames(installed.packages())) { install.packages("metap", dependencies = TRUE) }'
-  - Rscript -e 'update.packages(ask = FALSE, instlib = "~/Rlib")'
+  #- Rscript -e 'update.packages(ask = FALSE, instlib = "~/Rlib")'
   - conda install -c bioconda bioconductor-clusterProfiler bioconductor-gsva bioconductor-deseq2 bioconductor-limma bioconductor-mageckflute bioconductor-msmstests bioconductor-impute bioconductor-ggpubr bioconductor-biocstyle
+  - Rscript -e 'if(!"metap" %in% rownames(installed.packages())) { install.packages("metap", dependencies = TRUE) }'
   - Rscript -e 'devtools::install_deps(pkg = ".", dependencies = TRUE)'
 
 # Build and check package
