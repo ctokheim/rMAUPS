@@ -5,7 +5,7 @@
 ## Installation
 
 ```
-BiocManager::install(c("clusterProfiler", "GSVA", "DESeq2", "limma", "MAGeCKFlute", "msmsTests", "metap", "impute", "ggpubr"))
+BiocManager::install(c("clusterProfiler", "GSVA", "DESeq2", "limma", "MAGeCKFlute", "msmsTests", "metap", "impute", "ggpubr", "BiocStyle"))
 install.packages("devtools")
 devtools::install_github("WubingZhang/rMAUPS")
 ```

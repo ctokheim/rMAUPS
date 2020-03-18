@@ -5,7 +5,8 @@
 \alias{MAUPSr}
 \title{rMAUPS pipeline - QC, differential analysis, integrative analysis.}
 \usage{
-MAUPSr(metadata, outdir = "./", qc = TRUE, type = "msms")
+MAUPSr(metadata, outdir = "./", qc = TRUE, type = "msms",
+  method = "limma")
 }
 \arguments{
 \item{metadata}{File path or data frame of the meta data, including columns of
@@ -16,6 +17,9 @@ Experiment, Sample, Condition, and multiple comparisons.}
 \item{qc}{Boolean, specifying whether perform the quanlity control.}
 
 \item{type}{Could be "msms", "RNASeq", or "Arrary".}
+
+\item{method}{A character, specifying the method for differential analysis.
+Optional methods include DESeq2 (RNASeq), GFOLD (RNASeq), limma, glm.pois, glm.qlll, and glm.nb.}
 }
 \value{
 No return value. Output multiple files into local folder.

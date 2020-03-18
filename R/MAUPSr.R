@@ -9,12 +9,15 @@
 #' @param outdir Output directory.
 #' @param qc Boolean, specifying whether perform the quanlity control.
 #' @param type Could be "msms", "RNASeq", or "Arrary".
+#' @param method A character, specifying the method for differential analysis.
+#' Optional methods include DESeq2 (RNASeq), GFOLD (RNASeq), limma, glm.pois, glm.qlll, and glm.nb.
 #'
 #' @author Wubing Zhang
 #' @return No return value. Output multiple files into local folder.
 #' @export
 #'
-MAUPSr <- function(metadata, outdir = "./", qc = TRUE, type = "msms"){
+MAUPSr <- function(metadata, outdir = "./", qc = TRUE,
+                   type = "msms", method = "limma"){
   options(stringsAsFactors = FALSE)
   if(!dir.exists(outdir)) dir.create(outdir, showWarnings = FALSE, recursive = TRUE)
   message(Sys.time(), " Reading the metadata ...")
@@ -54,7 +57,7 @@ MAUPSr <- function(metadata, outdir = "./", qc = TRUE, type = "msms"){
       tmpfile = paste0(outdir,"/imputation/", basename(gsub("\\..*",
                                         "_imputed.csv", experiment)))
       write.csv(imputedata, tmpfile, row.names = TRUE, quote = FALSE)
-      data = imputeddata
+      data = imputedata
       if(qc){
         plist = ProteomicsQC(data, condition = meta[colnames(data), 3],
                            proj.name = proj.name,
@@ -69,7 +72,7 @@ MAUPSr <- function(metadata, outdir = "./", qc = TRUE, type = "msms"){
       prefix = paste0(proj.name, ".", comp)
       SA = meta[!is.na(meta[,comp]), comp, drop = FALSE]
       message("\t", Sys.time(), " ", comp, " ...")
-      method = ifelse(grepl("RNA", type), "DESeq2", "limma")
+
       psm.p = NULL
       if(sum(grepl("PSMs", colnames(rawdata)))>0){
         colnames(SA) = "Condition"

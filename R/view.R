@@ -12,7 +12,7 @@
 #' @import shiny
 #' @export
 #'
-view <- function(outdir){
+view <- function(outdir = "./"){
   requireNamespace("shiny")
   ui <- fluidPage(
     headerPanel('Visualization of rMAUPS results'),
