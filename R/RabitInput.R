@@ -13,7 +13,7 @@
 #'
 #' @author Wubing Zhang
 #'
-#' @import MAGeCKFlute
+#' @importFrom MAGeCKFlute TransGeneID
 #' @export
 RabitInput <- function(deres, idType = "symbol", org = "hsa"
                        #, filename = NULL
@@ -26,14 +26,9 @@ RabitInput <- function(deres, idType = "symbol", org = "hsa"
   }
   diff_gene <- read.table(deres, sep = "\t", header = TRUE, check.names = FALSE,
                           stringsAsFactors = FALSE, quote = "", row.names = 1)
-  if(tolower(idType) %in% c("symbol", "ensembl")){
-    diff_gene$Entrez = TransGeneID(rownames(diff_gene), fromType = idType,
-                                   toType = "Entrez", organism = org)
-  }else if(tolower(idType) %in% c("uniprot", "refseq")){
-    tmp = TransProteinID(rownames(diff_gene), fromType = idType,
-                         toType = "symbol", organism = org)
-    diff_gene$Entrez = TransGeneID(tmp, fromType = "symbol",
-                                   toType = "Entrez", organism = org)
+  if(tolower(idType) %in% c("symbol", "ensembl", "uniprot", "refseq")){
+    diff_gene$Entrez = MAGeCKFlute::TransGeneID(rownames(diff_gene), fromType = idType,
+                                                toType = "Entrez", organism = org)
   }else if(tolower(idType) == "entrez"){
     diff_gene$Entrez = rownames(diff_gene)
   }else{

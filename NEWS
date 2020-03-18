@@ -11,3 +11,7 @@ CHANGES IN VERSION 0.1.0
     o Pratt: API for Pratt.
     o ssNES: Compute single sample enrichment score.
 
+CHANGES IN VERSION 0.1.1
+-------------------------
+
+    o Init a rMAUPS pipeline and visualization shiny app.

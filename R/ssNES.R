@@ -1,8 +1,8 @@
 #' single sample gene set enrichment
 #'
 #' @docType methods
-#' @name DeComplex
-#' @rdname DeComplex
+#' @name ssNES
+#' @rdname ssNES
 #'
 #' @param mat A matrix.
 #' @param gsType Molecular signatures for testing, available datasets include Pathway
