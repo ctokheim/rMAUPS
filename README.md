@@ -10,7 +10,7 @@ install.packages("devtools")
 devtools::install_github("WubingZhang/rMAUPS")
 ```
 
-## Visualize tutorial
+## Tutorial
 For detail documentation, please visit http://cistrome.org/~wubing/rMAUPS.html or run the following command line.
 
 ```
