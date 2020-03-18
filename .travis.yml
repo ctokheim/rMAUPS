@@ -78,9 +78,11 @@ install:
   - Rscript -e 'if(!"BiocManager" %in% rownames(installed.packages())) { install.packages("BiocManager", dependencies = TRUE) }'
   #- Rscript -e 'update.packages(ask = FALSE, instlib = "~/Rlib")'
   - conda install -c bioconda bioconductor-clusterProfiler bioconductor-gsva 
-  - conda install -c bioconda bioconductor-deseq2 bioconductor-limma 
-  - conda install -c bioconda bioconductor-msmstests bioconductor-impute bioconductor-biocstyle
-  - conda install -c bioconda bioconductor-mageckflute 
+  - conda install -c bioconda bioconductor-deseq2 
+  - conda install -c bioconda bioconductor-limma 
+  - Rscript -e 'BiocManager::install(c("MAGeCKFlute", "msmsTests", "metap", "impute", "ggpubr")) }'
+  #- conda install -c bioconda bioconductor-msmstests bioconductor-impute bioconductor-biocstyle
+  #- conda install -c bioconda bioconductor-mageckflute 
   - Rscript -e 'if(!"metap" %in% rownames(installed.packages())) { install.packages("metap", dependencies = TRUE) }'
   - Rscript -e 'if(!"ggpubr" %in% rownames(installed.packages())) { install.packages("ggpubr", dependencies = TRUE) }'
   - Rscript -e 'devtools::install_deps(pkg = ".", dependencies = TRUE)'
