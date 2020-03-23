@@ -22,14 +22,13 @@ knitr::opts_chunk$set(echo = TRUE)
 Installing the package in a fresh R environment may take a long time. It may fail because of some issues. You can check the possible issues and solutions from https://github.com/WubingZhang/rMAUPS/issues/3, or post a new issue there.
 ```{r install, eval=FALSE}
 install.packages(c("BiocManager", "devtools"))
-BiocManager::install(c("clusterProfiler", "GSVA", "DESeq2", "limma", "MAGeCKFlute", "msmsTests", "metap", "impute", "ggpubr", "BiocStyle"))
+BiocManager::install(c("GSVA", "DESeq2", "limma", "msmsTests", "metap", "impute", "ggpubr", "BiocStyle"))
 devtools::install_github("WubingZhang/rMAUPS")
 ```
 
 ## load required packages
 The environment should be OK if you can load the required packages successfully.
 ```{r libs}
-library(MAGeCKFlute)
 library(ggplot2)
 library(rMAUPS)
 ```
@@ -115,9 +114,7 @@ After normalization and imputation, you can perform the quality control analysis
 rMAUPS provides a integrated function `DEAnalyze` to perform differential expression analysis for both RNA-seq data and proteomics data. For RNA-seq data, `type = "RNAseq", method = "DESeq2"` is recommended; for label-free proteomics, `type = "msms", method = "msms.edgeR"` is suggested; for isobaric labeling-based relative quantification of prpteomics, `type = "msms", method = "limma"` is preferred.
 ```{r dep}
 deres = DEAnalyze(data, meta[,-1], type = "msms", method = "limma")
-## Visualize the results using functions from MAGeCKFlute
-VolcanoView(deres, "log2FC", "padj", x_cutoff = 0.3, y_cutoff = 0.1)
-# Or
+## Visualize the results
 deres$logFDR = log10(deres$padj)
 ScatterView(deres, x = "log2FC", y = "logFDR", 
             x_cut = c(-0.5,0.5), y_cut = -2, 
@@ -135,7 +132,7 @@ res$gocc.p
 res$corum.p
 ```
 
-# Session info {.unnumbered}
+# Session info
 
 ```{r sessionInfo, echo=FALSE}
 sessionInfo()

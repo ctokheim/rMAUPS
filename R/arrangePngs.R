@@ -50,7 +50,8 @@ arrangePngs <- function(outdir){
     rds_list = setdiff(rds_list, merged_rds)
     compare = list()
     for(rds in rds_list){
-      tmp = readRDS(rds)[-1]
+      tmp = readRDS(rds)
+      tmp = tmp[-length(tmp)]
       tmp = tmp[lengths(tmp)>0]
       compare[[gsub(".*\\/|.rds", "", rds)]] = ggarrange(plotlist = tmp)
     }
@@ -59,7 +60,7 @@ arrangePngs <- function(outdir){
     if(length(merged_rds)>0){
       integrate = list()
       for(rds in merged_rds){
-        tmp = readRDS(rds)[c(6,4,2,5)]
+        tmp = readRDS(rds)[1:4]
         tmp = tmp[lengths(tmp)>0]
         integrate[[gsub(".*\\/|_merged.rds", "", rds)]] = ggarrange(plotlist = tmp)
       }

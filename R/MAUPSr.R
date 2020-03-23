@@ -97,8 +97,10 @@ MAUPSr <- function(metadata, outdir = "./", qc = TRUE,
       p1 = p1 + theme(legend.position = "none")
       ggsave(paste0(outdir,"/",comp,"/",prefix, "_dep_volcano.png"),
              p1, width = 6, height = 5)
-
-      res = DeComplex(deres_p)
+      res = list()
+      res$psm.p = psm.p
+      res$dep.p = p1
+      res = c(res, DeComplex(deres_p))
       write.csv(res$deComplex, paste0(outdir,"/",comp,"/",prefix, "_dePathway.csv"),
                 row.names = TRUE, quote = FALSE)
       res$gobp.p = res$gobp.p + labs(title = paste0(prefix, "(BP)"))
@@ -113,8 +115,6 @@ MAUPSr <- function(metadata, outdir = "./", qc = TRUE,
              res$gocc.p, width = 6, height = 5)
       ggsave(paste0(outdir,"/",comp,"/",prefix, "_deCORUM_volcano.png"),
              res$corum.p, width = 6, height = 5)
-      res$dep.p = p1
-      res$psm.p = psm.p
       saveRDS(res, paste0(outdir,"/",comp,"/",prefix, ".rds"))
     }
   }
@@ -157,7 +157,9 @@ MAUPSr <- function(metadata, outdir = "./", qc = TRUE,
       ggsave(paste0(outdir,"/", comp,"/", comp, "_merged_dep_volcano.png"),
              p1, width = 6, height = 5)
 
-      res = DeComplex(mergedDep, lfc = "Zscore")
+      res = list()
+      res$dep.p = p1
+      res = c(res, DeComplex(mergedDep, lfc = "Zscore"))
       res$gobp.p = res$gobp.p + labs(title = paste0(prefix, "(BP)"))
       res$reactome.p = res$reactome.p + labs(title = paste0(prefix, "(REACTOME)"))
       res$gocc.p = res$gocc.p + labs(title = paste0(prefix, "(CC)"))
@@ -172,7 +174,6 @@ MAUPSr <- function(metadata, outdir = "./", qc = TRUE,
              res$gocc.p, width = 6, height = 5)
       ggsave(paste0(outdir,"/", comp,"/", comp, "_merged_deCORUM_volcano.png"),
              res$corum.p, width = 6, height = 5)
-      res$dep.p = p1
       saveRDS(res, paste0(outdir,"/", comp,"/", comp, "_merged.rds"))
     }
   }

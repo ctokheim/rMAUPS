@@ -7,7 +7,7 @@
 #' @param outdir The path to a local directory.
 #'
 #' @return a list of ggplot objects.
-#' @import ggplot2 MAGeCKFlute
+#' @import ggplot2
 #' @author Wubing Zhang
 #' @export
 #'

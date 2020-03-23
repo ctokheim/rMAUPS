@@ -3,11 +3,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## ----install, eval=FALSE---------------------------------------------------
 #  install.packages(c("BiocManager", "devtools"))
-#  BiocManager::install(c("clusterProfiler", "GSVA", "DESeq2", "limma", "MAGeCKFlute", "msmsTests", "metap", "impute", "ggpubr", "BiocStyle"))
+#  BiocManager::install(c("GSVA", "DESeq2", "limma", "msmsTests", "metap", "impute", "ggpubr", "BiocStyle"))
 #  devtools::install_github("WubingZhang/rMAUPS")
 
 ## ----libs------------------------------------------------------------------
-library(MAGeCKFlute)
 library(ggplot2)
 library(rMAUPS)
 
@@ -61,9 +60,7 @@ plot(imputed[idx], data[idx])
 
 ## ----dep-------------------------------------------------------------------
 deres = DEAnalyze(data, meta[,-1], type = "msms", method = "limma")
-## Visualize the results using functions from MAGeCKFlute
-VolcanoView(deres, "log2FC", "padj", x_cutoff = 0.3, y_cutoff = 0.1)
-# Or
+## Visualize the results
 deres$logFDR = log10(deres$padj)
 ScatterView(deres, x = "log2FC", y = "logFDR", 
             x_cut = c(-0.5,0.5), y_cut = -2, 
