@@ -7,13 +7,13 @@ Installing the package in a fresh R environment may take a long time. It may fai
 
 ### Install rMAUPS using bash command line (recommended)
 ```
-conda install -c bioconda bioconductor-gsva bioconductor-deseq2 bioconductor-limma bioconductor-msmstests bioconductor-impute bioconductor-biomart bioconductor-biocstyle
+conda install -c bioconda bioconductor-gsva bioconductor-deseq2 bioconductor-limma bioconductor-msmstests bioconductor-impute bioconductor-biomart bioconductor-go.db bioconductor-biocstyle
 Rscript -e 'devtools::install_github("WubingZhang/rMAUPS")'
 ```
 ### Install rMAUPS using R command line
 ```
 install.packages(c("BiocManager", "devtools"))
-BiocManager::install(c("GSVA", "DESeq2", "limma", "msmsTests", "metap", "impute", "BiocStyle", "biomaRt")) 
+BiocManager::install(c("GSVA", "DESeq2", "limma", "msmsTests", "metap", "impute", "BiocStyle", "biomaRt", "GO.db")) 
 devtools::install_github("WubingZhang/rMAUPS")
 ```
 
