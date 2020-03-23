@@ -7,8 +7,8 @@ Maintainer: Wubing Zhang <wzhang@ds.dfci.harvard.edu>
 Description: Model-based Analysis of Ubiquitin-Proteosome System.
 Depends: R (>= 3.5), stats, utils
 Imports: DESeq2, limma, msmsTests, MSnbase, msmsEDA, edgeR, impute, 
-  metap, Biobase, AnnotationDbi, GSVA, matrixStats, ggplot2, ggpubr, 
-  ggrepel, stringr, data.table, shiny, biomaRt
+  metap, Biobase, GSVA, matrixStats, ggplot2, ggpubr, GO.db,
+  ggrepel, data.table, shiny, biomaRt, grDevices
 Suggests: BiocStyle, knitr, rmarkdown
 License: GPL (>=3)
 Encoding: UTF-8

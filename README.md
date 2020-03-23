@@ -5,9 +5,17 @@ Advances in proteomic profiling have enabled the study of protein regulation and
 ## Installation
 Installing the package in a fresh R environment may take a long time. It may fail because of some issues. You can check the possible issues and solutions from https://github.com/WubingZhang/rMAUPS/issues/3, or post a new issue there.
 
+### Install rMAUPS using bash command line (recommended)
 ```
 install.packages(c("BiocManager", "devtools"))
-BiocManager::install(c("clusterProfiler", "GSVA", "DESeq2", "limma", "MAGeCKFlute", "msmsTests", "metap", "impute", "ggpubr", "BiocStyle"))
+BiocManager::install(c("GSVA", "DESeq2", "limma", "msmsTests", "metap", "impute", "ggpubr", "BiocStyle", "biomaRt"))
+conda install -c bioconda bioconductor-gsva bioconductor-deseq2 bioconductor-limma bioconductor-msmstests bioconductor-impute bioconductor-biomart bioconductor-biocstyle
+Rscript -e 'devtools::install_github("WubingZhang/rMAUPS")'
+```
+### Install rMAUPS using R command line
+```
+install.packages(c("BiocManager", "devtools"))
+BiocManager::install(c("GSVA", "DESeq2", "limma", "msmsTests", "metap", "impute", "BiocStyle", "biomaRt")) 
 devtools::install_github("WubingZhang/rMAUPS")
 ```
 

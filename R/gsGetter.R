@@ -95,3 +95,181 @@ gsGetter <- function(gmtpath = NULL, type = "All", limit = c(0, Inf),
   gene2path$Gene = as.character(gene2path$Gene)
   return(gene2path)
 }
+
+
+#' Update genesets from source database
+#'
+#' @docType methods
+#' @name retrieve_gs
+#' @rdname retrieve_gs
+#'
+#' @param organism 'hsa' or 'mmu'.
+#'
+#' @return save data to local library.
+#'
+#' @author Wubing Zhang
+#'
+#' @examples
+#' retrieve_gs()
+#'
+#' @export
+#'
+retrieve_gs <- function(organism = 'hsa'){
+  options(stringsAsFactors = FALSE)
+  ## Process genesets from Gene ontology
+  message(format(Sys.time(), " Downloading genesets from Gene Ontology ..."))
+  avail_gaf = c("goa_human.gaf.gz", "mgi.gaf.gz"); names(avail_gaf) = c("hsa", "mmu")
+  base_url = "http://geneontology.org/gene-associations/"
+  locfname = file.path(system.file("extdata", package = "rMAUPS"), "tmp.gaf.gz")
+  download.file(paste0(base_url, avail_gaf[organism]), locfname, quiet = TRUE)
+  go <- read.table(locfname, sep = "\t", comment.char = "!", quote = "", stringsAsFactors = FALSE)
+  file.remove(locfname)
+  colnames(go) <- c("DB","DB_Object_ID","DB_Object_Symbol","Qualifier","GO_ID","DB_Reference(s)",
+                    "Evidence_Code","With_From","Aspect",
+                    "DB_Object_Name","DB_Object_Synonym","DB_Object_Type","Taxon",
+                    "Date","Assigned_By","Annotation_Extension","Gene_Product_Form_ID")
+  go <- go[, c("DB_Object_Symbol", "GO_ID", "Aspect")]
+  idx <- duplicated(paste(go$DB_Object_Symbol, go$GO_ID, go$Aspect, sep = "."))
+  go <- go[!idx, ]
+  go$GO_ID[go$Aspect=="F"] = gsub("GO", "GOMF", go$GO_ID[go$Aspect=="F"])
+  go$GO_ID[go$Aspect=="C"] = gsub("GO", "GOCC", go$GO_ID[go$Aspect=="C"])
+  go$GO_ID[go$Aspect=="P"] = gsub("GO", "GOBP", go$GO_ID[go$Aspect=="P"])
+  tmp = as.data.frame(GO.db::GOTERM)
+  tmp = tmp[!duplicated(tmp$go_id), ]
+  rownames(tmp) = tmp$go_id
+  go$Term = tmp[gsub("GO..", "GO", go$GO_ID), "Term"]
+  go$Entrez = TransGeneID(go$DB_Object_Symbol, "Symbol", "Entrez", organism = organism)
+  go = na.omit(go[, c(5,2,4)])
+  locfname = file.path(system.file("extdata", package = "rMAUPS"),
+                       paste0("go.all.entrez.", organism, ".rds"))
+  saveRDS(go, locfname)
+  # res <- aggregate(go$DB_Object_Symbol, by=list(go$GO_ID), FUN=paste, collapse = "\t")
+
+  ## Process genesets from KEGG
+  message(format(Sys.time(), " Downloading genesets from KEGG ..."))
+  gene2path = read.table(paste0("http://rest.kegg.jp/link/pathway/", organism),
+                         sep = "\t", stringsAsFactors = FALSE)
+  names(gene2path) = c("EntrezID", "PathwayID")
+  pathways = read.table(paste0("http://rest.kegg.jp/list/pathway/", organism),
+                        sep = "\t", stringsAsFactors = FALSE)
+  names(pathways) = c("PathwayID","PathwayName")
+  gene2path$EntrezID=gsub(".*:", "", gene2path$EntrezID)
+  gene2path$PathwayID=gsub(".*:","",gene2path$PathwayID)
+  pathways$PathwayID=gsub(".*:","",pathways$PathwayID)
+  pathways$PathwayName=gsub(" - .*", "", pathways$PathwayName)
+  rownames(pathways) = pathways$PathwayID
+  gene2path$PathwayName = pathways[gene2path$PathwayID, "PathwayName"]
+  locfname = file.path(system.file("extdata", package = "rMAUPS"),
+                       paste0("kegg.all.entrez.", organism, ".rds"))
+  gene2path$PathwayID = gsub(organism, "KEGG:", gene2path$PathwayID)
+  saveRDS(gene2path, locfname)
+
+  ## Process genesets from CORUM
+  message(format(Sys.time(), " Downloading genesets from CORUM ..."))
+  base_url = "http://mips.helmholtz-muenchen.de/corum/download/allComplexes.txt.zip"
+  locfname = file.path(system.file("extdata", package = "rMAUPS"), "allComplexes.txt.zip")
+  download.file(base_url, locfname, quiet = TRUE)
+  corum <- read.table(unz(locfname, "allComplexes.txt"), sep = "\t",
+                      header = TRUE, quote = "", stringsAsFactors = FALSE)
+  file.remove(locfname)
+  if(organism=="hsa")
+    corum = corum[corum$Organism=="Human", ]
+  else if(organism=="mmu")
+    corum = corum[corum$Organism=="Mouse", ]
+  genes = strsplit(corum$subunits.Gene.name., ";")
+  nset = unlist(lapply(genes, length))
+  gene2corum = data.frame(EntrezID = unlist(genes),
+                          ComplexID = rep(corum$ComplexID, nset),
+                          ComplexName = rep(corum$ComplexName, nset))
+  gene2corum$ComplexID = paste0("CORUM:", gene2corum$ComplexID)
+  gene2corum$EntrezID = TransGeneID(gene2corum$EntrezID, "Symbol", "Entrez", organism = organism)
+  gene2corum = na.omit(gene2corum)
+  locfname = file.path(system.file("extdata", package = "rMAUPS"),
+                       paste0("corum.all.entrez.", organism, ".rds"))
+  saveRDS(gene2corum, locfname)
+
+  ## Process genesets from REACTOME
+  message(format(Sys.time(), " Downloading genesets from REACTOME ..."))
+  gene2path = read.table("https://reactome.org/download/current/NCBI2Reactome.txt",
+                         sep = "\t", stringsAsFactors = FALSE, comment.char = "", quote = "")
+  colnames(gene2path) = c("EntrezID", "PathwayID", "link", "PathwayName", "Evidence", "Organism")
+  gene2path = gene2path[grepl(organism, gene2path$PathwayID, ignore.case = TRUE), ]
+  gene2path = gene2path[, c(1,2,4)]
+  gene2path$PathwayID = gsub(paste0("R-", toupper(organism), "-"), "REACTOME:", gene2path$PathwayID)
+  locfname = file.path(system.file("extdata", package = "rMAUPS"),
+                       paste0("reactome.all.entrez.", organism, ".rds"))
+  saveRDS(gene2path, locfname)
+
+  ## Molecular signature database
+  message(format(Sys.time(), " Downloading genesets from MsigDB ..."))
+  msigfile = file.path(system.file("extdata", package = "rMAUPS"),
+                       paste0(organism, "_msig_entrez.gmt.gz"))
+  gene2path = ReadGMT(msigfile, limit = c(0, Inf))
+  saveRDS(gene2path, file.path(system.file("extdata", package = "rMAUPS"),
+                               paste0("msigdb.all.entrez.", organism, ".rds")))
+}
+
+
+
+
+#' ReadGMT
+#'
+#' Parse gmt file to a data.frame
+#'
+#' @docType methods
+#' @name ReadGMT
+#' @rdname ReadGMT
+#'
+#' @param gmtpath The path to gmt file.
+#' @param limit A integer vector of length two, specifying the limit of geneset size.
+#'
+#' @return An data.frame, in which the first column is gene, and the second column is pathway name.
+#'
+#' @author Wubing Zhang
+#'
+#' @export
+#'
+ReadGMT <- function(gmtpath, limit = c(0, Inf)){
+  c2 = readLines(gmtpath)
+  c2_list = strsplit(c2, "\t")
+  c2_pathway = t(matrix(unlist(lapply(c2_list, function(x) x[1:2])), nrow = 2))
+  rownames(c2_pathway) = c2_pathway[,1]
+  c2_list = lapply(c2_list, function(x) x[-(1:2)])
+  names(c2_list) = c2_pathway[,1]
+  c2_len = lapply(c2_list, length)
+  gene2path = data.frame(Gene = unlist(c2_list), PathwayID = rep(names(c2_list), c2_len),
+                         stringsAsFactors = FALSE)
+  limit_pathways = names(c2_list)[c2_len>=limit[1] & c2_len<=limit[2]]
+  gene2path = gene2path[gene2path$PathwayID%in%limit_pathways, ]
+  gene2path$PathwayName = c2_pathway[gene2path$PathwayID, 2]
+  return(gene2path)
+}
+
+
+#' Write GMT file
+#'
+#' write data frame to a gmt file
+#'
+#' @docType methods
+#' @name ReadGMT
+#' @rdname ReadGMT
+#'
+#' @param gene2path A data frame. The columns should be Gene, Pathway ID, and Pathway Name.
+#' @param gmtfile Path to gmt file.
+#'
+#' @return Output gmt file to local folder.
+#'
+#' @author Wubing Zhang
+#' @examples
+#' gene2path = gsGetter(type = "Complex")
+#' writeGMT(gene2path, "Protein_complex.gmt")
+#'
+#' @export
+#'
+writeGMT <- function(gene2path, gmtfile){
+  genelists = lapply(unique(gene2path[,2]), function(x)
+    paste(gene2path[gene2path[,2]==x, 1], collapse = "\t"))
+  gmt = cbind(unique(gene2path[,2]), gene2path[!duplicated(gene2path[,2]),3], unlist(genelists))
+  write.table(gmt, gmtfile, sep = "\t", row.names = FALSE,
+              col.names = FALSE, quote = FALSE)
+}

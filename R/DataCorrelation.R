@@ -9,7 +9,7 @@
 #' @param method One of "pearson", "kendall", or "spearman" (default).
 #'
 #' @return A ggplot instance.
-#' @import ggplot2 ggpubr
+#' @import ggplot2 ggpubr utils stats
 #' @author Wubing Zhang
 #' @export
 
@@ -50,9 +50,9 @@ DataCorrelation <- function(ds1, ds2, method="spearman"
   }))
 
   ## Sample correlation
-  gg = data.frame(Cor = c(corvalues_s, corvalues_g),
-                  Type = rep(c("Sample", "Gene"), c(com_sample, com_gene)))
-  p = ggplot(gg, aes(Cor, color = Type))
+  gg = data.frame("Cor" = c(corvalues_s, corvalues_g),
+                  "Type" = rep(c("Sample", "Gene"), c(com_sample, com_gene)))
+  p = ggplot(gg, aes_string("Cor", color = "Type"))
   p = p + geom_density()
   p = p + labs(x = paste0(method, " correlation"), y = "density")
   p = p + theme_pubr(legend = "right")

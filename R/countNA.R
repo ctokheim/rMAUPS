@@ -27,9 +27,9 @@ countNA <- function(expr
   ##  Count NA
   genecount <- rowSums(!is.na(exprSet))
   gg = sapply(1:ncol(exprSet), function(x) sum(genecount>=x))
-  gg = data.frame(Ratio = (1:ncol(exprSet)),
-                  Count = gg, stringsAsFactors = FALSE)
-  p = ggplot(gg, aes(Ratio, Count))
+  gg = data.frame("Ratio" = (1:ncol(exprSet)),
+                  "Count" = gg, stringsAsFactors = FALSE)
+  p = ggplot(gg, aes_string("Ratio", "Count"))
   p = p + geom_point(color = "gray50")
   p = p + theme(text = element_text(colour="black",size = 14, family = "Helvetica"),
                 plot.title = element_text(hjust = 0.5, size=18),

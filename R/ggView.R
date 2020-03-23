@@ -37,7 +37,7 @@ DensityView <- function(beta, samples = NULL, main = NULL,xlab = "Beta Score",
     dd1$variable = colnames(beta)
   }
   #==========
-  p=ggplot(data=dd1,aes(x=value,color=variable,group=variable))
+  p=ggplot(data=dd1,aes_string(x="value",color="variable",group="variable"))
   p=p+geom_density()
   # p=p+facet_wrap(~variable,nrow=1)
   p=p+labs(color=NULL)
@@ -141,16 +141,16 @@ IdentBarView <- function(gg, x = "x", y = "y", fill = c("#CF3C2B", "#394E80"),
 #' mdata = data.frame(group=letters[1:5], count=sample(1:100,5))
 #' BarView(mdata, x = "group", y = "count")
 #' @import ggplot2 ggpubr
+#' @importFrom grDevices col2rgb
 #' @export
 
 BarView <- function(df, x = "x", y = "y", fill = "#FC6665",
                     bar.width = 0.8, position = "dodge",
                     dodge.width = 0.8, main = NA,
                     xlab = NULL, ylab = NA, ...){
-  requireNamespace("ggplot2")
-  requireNamespace("ggpubr")
+
   ## Check if fill is valid color
-  boo <- try(col2rgb(fill), silent=TRUE)
+  boo <- try(grDevices::col2rgb(fill), silent=TRUE)
   boo = "try-error" %in% class(boo)
 
   ## Use the order of x in the df
@@ -221,7 +221,7 @@ ViolinView <- function(beta, samples=NULL, main=NULL, ylab="Beta Score",
     dd1$variable = colnames(beta)
   }
   #======
-  p=ggplot(data=dd1,aes(x=variable,y=value,color=variable))
+  p=ggplot(data=dd1,aes_string(x="variable",y="value",color="variable"))
   p=p+geom_violin()+geom_boxplot(width=.1, outlier.colour=NA)
   p = p + theme(text = element_text(colour="black",size = 14, family = "Helvetica"),
                 plot.title = element_text(hjust = 0.5, size=18),
@@ -266,7 +266,7 @@ pcView <- function(mat, color = gsub(".*_", "", colnames(mat)),
   tmp = prcomp(t(mat))
   gg = as.data.frame(tmp$x[,1:2], stringsAsFactors = FALSE)
   gg$Color = color
-  p = ggplot(gg, aes(PC1, PC2, color = Color))
+  p = ggplot(gg, aes_string("PC1", "PC2", color = "Color"))
   p = p + geom_point()
   p = p + labs(color = NULL)
   p = p + theme(text = element_text(colour="black",size = 14, family = "Helvetica"),
@@ -587,6 +587,8 @@ ScatterView<-function(data, x = "x", y = "y", label = 0,
 #' @param scale Boolean or numeric, specifying how many standard deviation will be used as cutoff.
 #'
 #' @return A numeric value.
+#'
+#' @import stats utils
 #' @export
 #' @examples
 #' CutoffCalling(rnorm(10000))
@@ -599,8 +601,8 @@ CutoffCalling=function(d, scale=1){
 
   Control_mean=0
   sorted_beta=sort(abs(d))
-  temp=quantile(sorted_beta,0.68)
-  temp_2=qnorm(0.84)
+  temp=stats::quantile(sorted_beta,0.68)
+  temp_2=stats::qnorm(0.84)
   cutoff=round(temp/temp_2,digits = 3)
   names(cutoff)=NULL
   cutoff=cutoff*param
