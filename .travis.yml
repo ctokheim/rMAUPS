@@ -1,0 +1,92 @@
+# .travis.yml using container-based infrastructure
+
+# use c as catch-all language
+language: c
+
+# use containers
+sudo: false
+
+# only run for pushes to master branch
+branches:
+  only:
+   - master
+
+# install R: use r-packages-precise (https://cran.r-project.org/bin/linux/ubuntu/precise/) 
+# as source which is white listed (https://github.com/travis-ci/apt-source-whitelist/)
+#addons:
+  #apt:
+    #sources:
+    #- r-packages-precise
+    #packages:
+    #- r-base-dev  
+    #- r-recommended
+    #- pandoc
+
+# cache local R libraries directory:
+cache:
+  directories:
+    - ~/miniconda
+
+before_install:
+  # Set conda path info
+  - MINICONDA_PATH=$HOME/miniconda;
+  - MINICONDA_SUB_PATH=$MINICONDA_PATH/bin;
+  # Obtain miniconda installer
+  - if [[ -f $HOME/download/miniconda.sh ]]; then
+        echo "miniconda.sh for posix already available from cache";
+      else
+        mkdir -p $HOME/download;
+        if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+          echo "downloading miniconda.sh for linux";
+          wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O $HOME/download/miniconda.sh;
+        elif  [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+          echo "downloading miniconda.sh for osx";
+          wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh -O $HOME/download/miniconda.sh;
+        fi;
+    fi;
+
+
+# install the package and dependencies:
+# - create directory for R libraries (if not already exists)
+# - create .Renviron with location of R libraries
+# - define R repository in .Rprofile
+# - add .travis.yml to .Rbuildignore
+# - install devtools if not already installed
+# - install covr if not already installed
+# - update all installed packages
+# - install package with dependencies
+install:
+  # Install miniconda
+  - if [[ -d $MINICONDA_SUB_PATH ]]; then
+        echo "miniconda for posix already available from cache";
+      else
+        echo "installing miniconda for posix";
+        bash $HOME/download/miniconda.sh -b -u -p $MINICONDA_PATH;
+    fi;
+  - export PATH="$MINICONDA_PATH:$MINICONDA_SUB_PATH:$PATH";
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
+  # Useful for debugging any issues with conda
+  - conda info -a
+  - conda install r r-recommended r-markdown
+  #- mkdir -p ~/Rlib
+  #- echo 'R_LIBS=~/Rlib' > .Renviron
+  - echo 'options(repos = "http://cran.rstudio.com")' > .Rprofile
+  - echo '.travis.yml' > .Rbuildignore
+  - conda install -c conda-forge r-devtools r-biocmanager r-ggpubr r-metap
+  - conda install -c anaconda libnetcdf
+  - conda install -c bioconda bioconductor-clusterProfiler bioconductor-gsva bioconductor-biocstyle
+  - Rscript -e 'BiocManager::install(c("DESeq2", "limma"), quiet=T)'
+  - Rscript -e 'BiocManager::install(c("msmsTests"))'
+  - Rscript -e 'BiocManager::install(c("impute"), quiet=T)'
+  - Rscript -e 'BiocManager::install(c("biomaRt", "GO.db"), quiet=T)'
+  # Alternative install
+  #- conda install -c bioconda bioconductor-gsva bioconductor-deseq2 bioconductor-limma bioconductor-msmstests bioconductor-impute bioconductor-biomart bioconductor-go.db bioconductor-biocstyle
+  #- Rscript -e 'devtools::install_github("WubingZhang/rMAUPS")'
+
+# Build and check package
+script:
+  - R CMD build . --no-manual
+  - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
+  - R CMD check "${PKG_FILE_NAME}" --no-manual --as-cran 
