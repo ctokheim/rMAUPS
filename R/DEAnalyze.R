@@ -27,6 +27,7 @@
 #' @importFrom edgeR DGEList calcNormFactors
 #' @importFrom MSnbase MSnSet
 #' @importFrom msmsEDA pp.msms.data
+#' @import utils stats
 #' @export
 
 DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
@@ -35,7 +36,7 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
                       app.dir = "/Users/Wubing/Applications/gfold/gfold"){
   #### Create a new object ####
   if(is.matrix(obj) | is.data.frame(obj)){
-    obj = na.omit(obj)
+    obj = stats::na.omit(obj)
     colnames(SampleAnn)[1] = "Condition"
     if(paired) colnames(SampleAnn)[2] = "Sibs"
     samples = intersect(rownames(SampleAnn), colnames(obj))
@@ -55,9 +56,9 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
   if(paired){
     Sibs = factor(pData(obj)$Sibs)
     Condition = factor(pData(obj)$Condition)
-    design = model.matrix(~Sibs+Condition)
+    design = stats::model.matrix(~Sibs+Condition)
   }else{
-    design = model.matrix(~1+Condition, pData(obj))
+    design = stats::model.matrix(~1+Condition, pData(obj))
     rownames(design) = sampleNames(obj)
   }
   if(tolower(type) == "array"){
@@ -91,14 +92,13 @@ DEAnalyze <- function(obj, SampleAnn = NULL, type = "Array",
       res = res[, c("logFC", "AveExpr", "t", "P.Value", "adj.P.Val")]
       colnames(res) = c("log2FC", "baseMean", "stat", "pvalue", "padj")
     }else if(tolower(method) == "edger"){
-      requireNamespace("edgeR")
       # exprs(obj) = TransformCount(exprs(obj), method = "voom")
-      dge <- DGEList(counts=exprs(obj))
-      dge <- calcNormFactors(dge)
-      dge <- estimateDisp(dge, design, robust=TRUE)
-      fit <- glmFit(dge, design)
-      lrt <- glmLRT(fit)
-      res <- topTags(lrt, n = nrow(exprs(obj)))
+      dge <- edgeR::DGEList(counts=exprs(obj))
+      dge <- edgeR::calcNormFactors(dge)
+      dge <- edgeR::estimateDisp(dge, design, robust=TRUE)
+      fit <- edgeR::glmFit(dge, design)
+      lrt <- edgeR::glmLRT(fit)
+      res <- edgeR::topTags(lrt, n = nrow(exprs(obj)))
       res = res$table[, c("logFC", "logCPM", "logFC", "PValue", "FDR")]
       colnames(res) = c("log2FC", "baseMean", "stat", "pvalue", "padj")
     }else if(tolower(method) == "gfold"){

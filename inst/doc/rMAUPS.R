@@ -3,12 +3,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## ----install, eval=FALSE---------------------------------------------------
 #  install.packages(c("BiocManager", "devtools"))
-#  BiocManager::install("MAGeCKFlute")
-#  # OR devtools::install_bitbucket("MAGeCKFlute")
-#  devtools::install_bitbucket("liulab/rMAUPS")
+#  BiocManager::install(c("GSVA", "DESeq2", "limma", "msmsTests", "metap", "impute", "ggpubr", "BiocStyle"))
+#  devtools::install_github("WubingZhang/rMAUPS")
 
 ## ----libs------------------------------------------------------------------
-library(MAGeCKFlute)
 library(ggplot2)
 library(rMAUPS)
 
@@ -30,45 +28,39 @@ head(metadata)
 #  MAUPSr(system.file("extdata", "metadata.csv", package = "rMAUPS"), outdir = "analysis/")
 #  ## Or
 #  MAUPSr(metadata, outdir = "analysis/")
-#  ## Visualize the results on a webpage
+#  ## Visualize the results on a shiny app.
 #  view("analysis/")
+#  
+#  # After the shiny app open, please input the path to rMAUPS results, e.g.  "analysis/" here, click `submit`, then all the figure results will be loaded on the webpage. It take seconds to load all the figures, please be patient after clicking `submit`.
 
-## ----qc--------------------------------------------------------------------
-data = normdata[,-1]
-p = ViolinView(data, ylab = "Protein abundance")
-p = p + theme(axis.text.x = element_text(angle = 40, hjust = 1, vjust = 1))
-p
+## ----simulatedata----------------------------------------------------------
+data = as.matrix(normdata[,-1])
 meta = metadata[metadata$Experiment=="experiment1_normdata.csv", -1]
 rownames(meta) = meta[,1]
-p = pcView(data, meta[colnames(data), 2])
-p
-
-## --------------------------------------------------------------------------
-data = as.matrix(data)
 simulated = data
 idx = sample(1:length(simulated), round(0.1*length(simulated)))
 simulated[idx] = NA
 
-## ----imputation------------------------------------------------------------
-gg = data.frame(gene = rownames(simulated), NAs = rowSums(is.na(simulated)))
-p1 = DensityView(gg[,2,drop=FALSE], xlab = "The number of missing value")
-p1 + theme(legend.position = "none")
-gg = data.frame(sample = colnames(simulated), Detection = colSums(!is.na(simulated)))
-p2 = DensityView(gg[,2,drop=FALSE], xlab = "The number of detected gene")
-p2 + theme(legend.position = "none")
-p3 = BarView(gg, "sample", "Detection", fill = "#8da0cb",
-             ylab = "The number of detected gene")
-p3 + theme(axis.text.x = element_text(angle = 40, hjust = 1, vjust = 1))
+## ----qc--------------------------------------------------------------------
+qc = ProteomicsQC(simulated, condition = meta[colnames(data), 2], proj.name = "TestQC")
+qc$p1
+qc$p2
+qc$p3
+qc$p4
+qc$p5
+qc$p6
+qc$p7
 
-## --------------------------------------------------------------------------
-imputed = imputeNA(simulated)
+## ----normalize-------------------------------------------------------------
+normalized = normalizeProteomics(simulated, norm = "median", log2 = FALSE)
+
+## ----knn-------------------------------------------------------------------
+imputed = imputeNA(normalized)
 plot(imputed[idx], data[idx])
 
 ## ----dep-------------------------------------------------------------------
-## Limma
 deres = DEAnalyze(data, meta[,-1], type = "msms", method = "limma")
-VolcanoView(deres, "log2FC", "padj", x_cutoff = 0.3, y_cutoff = 0.1)
-# Or
+## Visualize the results
 deres$logFDR = log10(deres$padj)
 ScatterView(deres, x = "log2FC", y = "logFDR", 
             x_cut = c(-0.5,0.5), y_cut = -2, 

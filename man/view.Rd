@@ -5,7 +5,7 @@
 \alias{view}
 \title{Visulization of rMAUPS results}
 \usage{
-view(outdir)
+view(outdir = "./")
 }
 \arguments{
 \item{outdir}{The path to rMAUPS results.}

@@ -19,17 +19,16 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## Install required packages
+Installing the package in a fresh R environment may take a long time. It may fail because of some issues. You can check the possible issues and solutions from https://github.com/WubingZhang/rMAUPS/issues/3, or post a new issue there.
 ```{r install, eval=FALSE}
 install.packages(c("BiocManager", "devtools"))
-BiocManager::install("MAGeCKFlute")
-# OR devtools::install_bitbucket("MAGeCKFlute")
-devtools::install_bitbucket("liulab/rMAUPS")
+BiocManager::install(c("GSVA", "DESeq2", "limma", "msmsTests", "metap", "impute", "ggpubr", "BiocStyle", "biomaRt")) 
+devtools::install_github("WubingZhang/rMAUPS")
 ```
 
-
 ## load required packages
+The environment should be OK if you can load the required packages successfully.
 ```{r libs}
-library(MAGeCKFlute)
 library(ggplot2)
 library(rMAUPS)
 ```
@@ -40,7 +39,7 @@ The rMAUPS package includes two real LC-MS/MS data files ending with "export_pro
 ```{r preprocess}
 ## Process multiple datasets in a folder
 datapath = system.file("extdata", package = "rMAUPS")
-list.files(datapath)
+list.files(datapath, pattern = "export_proteins")
 normalizeProteomeDiscoverer(datapath, output = "./", log2 = TRUE)
 
 ## Process one dataset
@@ -61,59 +60,61 @@ After preprocessing the data and configuring the metadata, it's ready to run the
 MAUPSr(system.file("extdata", "metadata.csv", package = "rMAUPS"), outdir = "analysis/")
 ## Or
 MAUPSr(metadata, outdir = "analysis/")
-## Visualize the results on a webpage
+## Visualize the results on a shiny app.
 view("analysis/")
+
+# After the shiny app open, please input the path to rMAUPS results, e.g.  "analysis/" here, click `submit`, then all the figure results will be loaded on the webpage. It take seconds to load all the figures, please be patient after clicking `submit`.
 ```
 
 ## Step-by-step analysis of proteomics
 
-### Data quality control and normalization
-```{r qc}
-data = normdata[,-1]
-p = ViolinView(data, ylab = "Protein abundance")
-p = p + theme(axis.text.x = element_text(angle = 40, hjust = 1, vjust = 1))
-p
+To give an example about the quality control and imputation, we randomly assigned 10% values to be NA in the data.
+```{r simulatedata}
+data = as.matrix(normdata[,-1])
 meta = metadata[metadata$Experiment=="experiment1_normdata.csv", -1]
 rownames(meta) = meta[,1]
-p = pcView(data, meta[colnames(data), 2])
-p
-```
-
-### Imputation
-
-##### To give an example about the imputation step, we randomly assigned 10% values to be NA in the data.
-```{r}
-data = as.matrix(data)
 simulated = data
 idx = sample(1:length(simulated), round(0.1*length(simulated)))
 simulated[idx] = NA
 ```
 
-##### Before imputation, we analyzed the distribution of the missing values across samples.
-```{r imputation}
-gg = data.frame(gene = rownames(simulated), NAs = rowSums(is.na(simulated)))
-p1 = DensityView(gg[,2,drop=FALSE], xlab = "The number of missing value")
-p1 + theme(legend.position = "none")
-gg = data.frame(sample = colnames(simulated), Detection = colSums(!is.na(simulated)))
-p2 = DensityView(gg[,2,drop=FALSE], xlab = "The number of detected gene")
-p2 + theme(legend.position = "none")
-p3 = BarView(gg, "sample", "Detection", fill = "#8da0cb",
-             ylab = "The number of detected gene")
-p3 + theme(axis.text.x = element_text(angle = 40, hjust = 1, vjust = 1))
+### Data quality control
+1. The distribution of protein abundances across samples.
+2. The principal component analysis.
+3. Pairwise correlation of proteins within the same complexes
+4. The number of detected genes / missing values in each sample.
+
+```{r qc}
+qc = ProteomicsQC(simulated, condition = meta[colnames(data), 2], proj.name = "TestQC")
+qc$p1
+qc$p2
+qc$p3
+qc$p4
+qc$p5
+qc$p6
+qc$p7
 ```
 
-##### Imputation using KNN
-```{r}
-imputed = imputeNA(simulated)
+### Data normalization
+rMAUPS provides a function, `normalizeProteomics`, to normalize proteomics data. You can easily normalize the data using multiple optional methods, such as median normalization, median ratio normalization, z-score normalization, quatile normalization and loess normalization.
+```{r normalize}
+normalized = normalizeProteomics(simulated, norm = "median", log2 = FALSE)
+```
+
+### Imputation
+
+#### Imputation using KNN
+```{r knn}
+imputed = imputeNA(normalized)
 plot(imputed[idx], data[idx])
 ```
+After normalization and imputation, you can perform the quality control analysis again.
 
 ### Differential expression analysis
+rMAUPS provides a integrated function `DEAnalyze` to perform differential expression analysis for both RNA-seq data and proteomics data. For RNA-seq data, `type = "RNAseq", method = "DESeq2"` is recommended; for label-free proteomics, `type = "msms", method = "msms.edgeR"` is suggested; for isobaric labeling-based relative quantification of prpteomics, `type = "msms", method = "limma"` is preferred.
 ```{r dep}
-## Limma
 deres = DEAnalyze(data, meta[,-1], type = "msms", method = "limma")
-VolcanoView(deres, "log2FC", "padj", x_cutoff = 0.3, y_cutoff = 0.1)
-# Or
+## Visualize the results
 deres$logFDR = log10(deres$padj)
 ScatterView(deres, x = "log2FC", y = "logFDR", 
             x_cut = c(-0.5,0.5), y_cut = -2, 
@@ -121,6 +122,7 @@ ScatterView(deres, x = "log2FC", y = "logFDR",
 ```
 
 ### Differential expression of pathways/complexes
+For proteomics data analysis, the protein complex level analysis is informative. So we design a function DeComplex to combine the differential abundance of proteins into differential level of protein complexes or biological pathways.
 ```{r decomplex}
 res = DeComplex(deres)
 head(res$deComplex)
@@ -130,7 +132,7 @@ res$gocc.p
 res$corum.p
 ```
 
-# Session info {.unnumbered}
+# Session info
 
 ```{r sessionInfo, echo=FALSE}
 sessionInfo()

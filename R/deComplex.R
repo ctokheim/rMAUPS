@@ -57,6 +57,6 @@ DeComplex <- function(depres, type = "GOBP+GOCC+CORUM+REACTOME",
                    model = "volcano", auto_cut_x = TRUE, force = 5,
                    top = 5, main = "CORUM", ylab = "-log10(p.value)")
   p4 = p4 + theme(legend.position = "none")
-  return(list(deComplex = merged_deres, gobp.p = p1, reactome.p = p2,
-              gocc.p = p3, corum.p = p4))
+  return(list(gocc.p = p3, corum.p = p4, gobp.p = p1, reactome.p = p2,
+              deComplex = merged_deres))
 }

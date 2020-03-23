@@ -133,9 +133,9 @@ VarianceBoxplot <- function (fit, n=20, xlab="PSM count",
   x <- fit$count
   y <- fit$sigma^2
 
-  df.temp <- data.frame(pep_count =x, variance = y )
+  df.temp <- data.frame("pep_count" =x, "variance" = y )
   df.temp.filter <- df.temp[df.temp$pep_count<=n,]
-
+  df.temp.filter$logVariance = log(df.temp.filter$variance)
   if (fit$fit.method=="nls"){
     y.pred <- log(predict(fit$model,data.frame(x=seq(1,n))))
   }else if (fit$fit.method=="loess"){
@@ -145,8 +145,8 @@ VarianceBoxplot <- function (fit, n=20, xlab="PSM count",
   }
   p = ggplot()
   p = p + geom_boxplot(data = df.temp.filter,
-                       aes(pep_count, log(variance), group=pep_count))
-  p = p + geom_line(aes(pep_count, y.pred), col='red',lwd=1,
+                       aes_string("pep_count", "logVariance", group="pep_count"))
+  p = p + geom_line(aes_string("pep_count", "y.pred"), col='red',lwd=1,
                     data = na.omit(data.frame(pep_count = seq(1,n),
                                       y.pred = y.pred)))
   p = p + theme_pubr(base_size = 14)
