@@ -22,7 +22,7 @@ knitr::opts_chunk$set(echo = TRUE)
 Installing the package in a fresh R environment may take a long time. It may fail because of some issues. You can check the possible issues and solutions from https://github.com/WubingZhang/rMAUPS/issues/3, or post a new issue there.
 ```{r install, eval=FALSE}
 install.packages(c("BiocManager", "devtools"))
-BiocManager::install(c("GSVA", "DESeq2", "limma", "msmsTests", "metap", "impute", "ggpubr", "BiocStyle", "biomaRt")) 
+BiocManager::install(c("GSVA", "DESeq2", "limma", "msmsTests", "metap", "impute", "ggpubr", "BiocStyle"))
 devtools::install_github("WubingZhang/rMAUPS")
 ```
 
@@ -39,7 +39,7 @@ The rMAUPS package includes two real LC-MS/MS data files ending with "export_pro
 ```{r preprocess}
 ## Process multiple datasets in a folder
 datapath = system.file("extdata", package = "rMAUPS")
-list.files(datapath, pattern = "export_proteins")
+list.files(datapath)
 normalizeProteomeDiscoverer(datapath, output = "./", log2 = TRUE)
 
 ## Process one dataset
