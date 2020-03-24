@@ -46,6 +46,7 @@ before_install:
 # - install package with dependencies
 install:
   # Install miniconda
+  - rm -r ~/miniconda
   - if [[ -d $MINICONDA_SUB_PATH ]]; then
         echo "miniconda for posix already available from cache";
       else
