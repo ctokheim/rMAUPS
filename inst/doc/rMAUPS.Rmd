@@ -19,17 +19,18 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Install required packages
-Installing the package in a fresh R environment may take a long time. It may fail because of some issues. You can check the possible issues and solutions from https://github.com/WubingZhang/rMAUPS/issues/3, or post a new issue there.  
+Installing the package in a fresh R environment may take a long time. It may fail because of some issues. You can check the possible issues and solutions from https://github.com/WubingZhang/rMAUPS/issues/3, or post a new issue there. 
 
 ## Installation using R
 One of the dependencies require `libnetcdf`, you can install it using `conda install -c anaconda libnetcdf` in the bash command line. 
 ```{bash, eval=FALSE}
 $ conda install -c anaconda libnetcdf
 ```
+
 Then you can install all the required R packages in R.
 ```{r installr, eval=FALSE}
 install.packages(c("devtools", "BiocManager"), repos = "https://cloud.r-project.org")
-BiocManager::install(c("DESeq2", "limma", "impute", "biomaRt", "GO.db", "msmsTests"), quiet=TRUE)
+BiocManager::install(c("GSVA", "DESeq2", "limma", "impute", "biomaRt", "GO.db", "msmsTests", "BiocStyle"))
 devtools::install_github("WubingZhang/rMAUPS")
 ```
 
@@ -37,11 +38,7 @@ devtools::install_github("WubingZhang/rMAUPS")
 ```{bash installshell, eval=FALSE}
 $ conda install -c anaconda libnetcdf
 $ conda install -c conda-forge r-devtools r-biocmanager r-ggpubr r-metap
-$ conda install -c bioconda bioconductor-gsva bioconductor-biocstyle
-$ Rscript -e 'BiocManager::install(c("DESeq2", "limma"), quiet=T)'
-$ Rscript -e 'BiocManager::install(c("msmsTests"))'
-$ Rscript -e 'BiocManager::install(c("impute"), quiet=T)'
-$ Rscript -e 'BiocManager::install(c("biomaRt", "GO.db"), quiet=T)'
+$ Rscript -e 'BiocManager::install(c("GSVA", "DESeq2", "limma", "impute", "biomaRt", "GO.db", "msmsTests", "BiocStyle"))'
 $ Rscript -e 'devtools::install_github("WubingZhang/rMAUPS")'
 ```
 
