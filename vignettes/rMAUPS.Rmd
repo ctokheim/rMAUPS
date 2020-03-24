@@ -1,7 +1,7 @@
 ---
 title: "Model-based Analysis of Ubiquitin Proteasome System"
 author:
-- name: Wubing Zhang
+- name: Collin Tokheim, Wubing Zhang, Jun Ge, X. Shirley Liu
   affiliation: Dana-Farber Cancer Institute
 package: "rMAUPS - 0.1.1"
 output:
@@ -18,12 +18,31 @@ vignette: |
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Install required packages
-Installing the package in a fresh R environment may take a long time. It may fail because of some issues. You can check the possible issues and solutions from https://github.com/WubingZhang/rMAUPS/issues/3, or post a new issue there.
-```{r install, eval=FALSE}
-install.packages(c("BiocManager", "devtools"))
-BiocManager::install(c("GSVA", "DESeq2", "limma", "msmsTests", "metap", "impute", "ggpubr", "BiocStyle", "biomaRt")) 
+# Install required packages
+Installing the package in a fresh R environment may take a long time. It may fail because of some issues. You can check the possible issues and solutions from https://github.com/WubingZhang/rMAUPS/issues/3, or post a new issue there.  
+
+## Installation using R
+One of the dependencies require `libnetcdf`, you can install it using `conda install -c anaconda libnetcdf` in the bash command line. 
+```{bash, eval=FALSE}
+$ conda install -c anaconda libnetcdf
+```
+Then you can install all the required R packages in R.
+```{r installr, eval=FALSE}
+install.packages(c("devtools", "BiocManager"), repos = "https://cloud.r-project.org")
+BiocManager::install(c("DESeq2", "limma", "impute", "biomaRt", "GO.db", "msmsTests"), quiet=TRUE)
 devtools::install_github("WubingZhang/rMAUPS")
+```
+
+## Installation using bash command line
+```{bash installshell, eval=FALSE}
+$ conda install -c anaconda libnetcdf
+$ conda install -c conda-forge r-devtools r-biocmanager r-ggpubr r-metap
+$ conda install -c bioconda bioconductor-gsva bioconductor-biocstyle
+$ Rscript -e 'BiocManager::install(c("DESeq2", "limma"), quiet=T)'
+$ Rscript -e 'BiocManager::install(c("msmsTests"))'
+$ Rscript -e 'BiocManager::install(c("impute"), quiet=T)'
+$ Rscript -e 'BiocManager::install(c("biomaRt", "GO.db"), quiet=T)'
+$ Rscript -e 'devtools::install_github("WubingZhang/rMAUPS")'
 ```
 
 ## load required packages
@@ -33,41 +52,55 @@ library(ggplot2)
 library(rMAUPS)
 ```
 
-## LC-MS/MS dataset
+# LC-MS/MS dataset
 The rMAUPS package includes two real LC-MS/MS data files ending with "export_proteins.txt", which are exported from the Proteome Discoverer software. Here, we will take the two datasets as an example to describe how to analyze the data using the rMAUPS pipeline. Before running the pipeline, the data can be preprocessed into a tidy format using the function `normalizeProteomeDiscoverer`. 
 
-```{r preprocess}
-## Process multiple datasets in a folder
+* List the two files as follow:
+```{r listfile}
 datapath = system.file("extdata", package = "rMAUPS")
 list.files(datapath, pattern = "export_proteins")
-normalizeProteomeDiscoverer(datapath, output = "./", log2 = TRUE)
+```
 
-## Process one dataset
+* Preprocess all the datasets in the folder
+```{r preprocess}
+normalizeProteomeDiscoverer(datapath, output = "./", log2 = TRUE)
+```
+
+* Process one dataset
+```{r onedata}
 normdata = normalizeProteomeDiscoverer(file.path(datapath, "experiment1_export_proteins.txt"), log2 = TRUE, return = TRUE)
 head(normdata)
 ```
 
+# Quick start
+After preprocessing the datasets, you can run rMAUPS pipeline quickly. The pipeline requires a metadata, which configs the path to the datasets, list of samples and their experimental conditions, and design matrix of the comparisons.
+
 ## Metadata configuration
-To run the rMAUPS pipeline, a metadata is required. The metadata should include the path to the datasets, list of samples and their experimental conditions, and design matrix of the comparisons. 
+rMAUPS includes a metadata as an example, you can read the file `metadata.csv` and check the format of the metadata.
 ```{r readData}
 metadata = read.csv(file.path(datapath, "metadata.csv"))
 head(metadata)
 ```
 
 ## Run the pipeline
-After preprocessing the data and configuring the metadata, it's ready to run the pipeline using one-line command.
+After configuring the metadata, it's ready to run the pipeline using one-line command.
 ```{r pipeline, eval=FALSE}
-MAUPSr(system.file("extdata", "metadata.csv", package = "rMAUPS"), outdir = "analysis/")
-## Or
 MAUPSr(metadata, outdir = "analysis/")
-## Visualize the results on a shiny app.
-view("analysis/")
-
-# After the shiny app open, please input the path to rMAUPS results, e.g.  "analysis/" here, click `submit`, then all the figure results will be loaded on the webpage. It take seconds to load all the figures, please be patient after clicking `submit`.
+## Or
+MAUPSr(system.file("extdata", "metadata.csv", package = "rMAUPS"), outdir = "analysis/")
 ```
 
-## Step-by-step analysis of proteomics
+To better display all the results, we developed a mini shiny app, which includes all the rMAUPS results in a webpage. You can open it by using function `view`.
+```{r visualize, eval=FALSE}
+view(outdir = "analysis/")
+```
+Input the path to rMAUPS results, e.g.  "analysis/" here, click `submit`, then all the figure results will be loaded on the webpage. It take seconds to load all the figures, please be patient after clicking `submit`.
 
+
+# Step-by-step analysis of proteomics
+Besides the quick run of rMAUPS pipeline, you can also perform step-by-step analysis using functions in rMAUPS. You can perform quality control using the function `ProteomicsQC`, normalize the proteomics data using `normalizeProteomics`, impute the missing values using `imputeNA`, perform differetial analysis using `DEAnalyze`, and test the differential abundance of protein complexes or pathways using `DeComplex`.
+
+## Example dataset
 To give an example about the quality control and imputation, we randomly assigned 10% values to be NA in the data.
 ```{r simulatedata}
 data = as.matrix(normdata[,-1])
@@ -78,7 +111,7 @@ idx = sample(1:length(simulated), round(0.1*length(simulated)))
 simulated[idx] = NA
 ```
 
-### Data quality control
+## Data quality control
 1. The distribution of protein abundances across samples.
 2. The principal component analysis.
 3. Pairwise correlation of proteins within the same complexes
@@ -88,29 +121,28 @@ simulated[idx] = NA
 qc = ProteomicsQC(simulated, condition = meta[colnames(data), 2], proj.name = "TestQC")
 qc$p1
 qc$p2
-qc$p3
 qc$p4
 qc$p5
 qc$p6
 qc$p7
 ```
 
-### Data normalization
+## Data normalization
 rMAUPS provides a function, `normalizeProteomics`, to normalize proteomics data. You can easily normalize the data using multiple optional methods, such as median normalization, median ratio normalization, z-score normalization, quatile normalization and loess normalization.
 ```{r normalize}
 normalized = normalizeProteomics(simulated, norm = "median", log2 = FALSE)
 ```
 
-### Imputation
+## Imputation
 
-#### Imputation using KNN
+### Imputation using KNN
 ```{r knn}
 imputed = imputeNA(normalized)
 plot(imputed[idx], data[idx])
 ```
 After normalization and imputation, you can perform the quality control analysis again.
 
-### Differential expression analysis
+## Differential expression analysis
 rMAUPS provides a integrated function `DEAnalyze` to perform differential expression analysis for both RNA-seq data and proteomics data. For RNA-seq data, `type = "RNAseq", method = "DESeq2"` is recommended; for label-free proteomics, `type = "msms", method = "msms.edgeR"` is suggested; for isobaric labeling-based relative quantification of prpteomics, `type = "msms", method = "limma"` is preferred.
 ```{r dep}
 deres = DEAnalyze(data, meta[,-1], type = "msms", method = "limma")
@@ -121,7 +153,7 @@ ScatterView(deres, x = "log2FC", y = "logFDR",
             groups = c("bottomleft", "bottomright"), top = 5)
 ```
 
-### Differential expression of pathways/complexes
+## Differential expression of pathways/complexes
 For proteomics data analysis, the protein complex level analysis is informative. So we design a function DeComplex to combine the differential abundance of proteins into differential level of protein complexes or biological pathways.
 ```{r decomplex}
 res = DeComplex(deres)
