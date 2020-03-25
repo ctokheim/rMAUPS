@@ -67,7 +67,7 @@ install:
   - echo '.travis.yml' > .Rbuildignore
   - conda install -c conda-forge r-devtools r-biocmanager r-ggpubr r-metap
   - conda install -c anaconda libnetcdf
-  - conda install -c bioconda bioconductor-gsva bioconductor-biocstyle, bioconductor-deseq2
+  - conda install -c bioconda bioconductor-gsva bioconductor-biocstyle bioconductor-deseq2
   - Rscript -e 'BiocManager::install(c("limma"), quiet=T)'
   - Rscript -e 'BiocManager::install(c("msmsTests"))'
   - Rscript -e 'BiocManager::install(c("impute"), quiet=T)'
