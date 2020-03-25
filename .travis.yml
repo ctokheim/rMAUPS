@@ -3,6 +3,10 @@
 # use c as catch-all language
 language: c
 
+os:
+  - linux
+  - osx
+
 # use containers
 sudo: false
 
