@@ -3,6 +3,10 @@
 # use c as catch-all language
 language: c
 
+os:
+  - linux
+  - osx
+
 # use containers
 sudo: false
 
@@ -10,17 +14,6 @@ sudo: false
 branches:
   only:
    - master
-
-# install R: use r-packages-precise (https://cran.r-project.org/bin/linux/ubuntu/precise/) 
-# as source which is white listed (https://github.com/travis-ci/apt-source-whitelist/)
-#addons:
-  #apt:
-    #sources:
-    #- r-packages-precise
-    #packages:
-    #- r-base-dev  
-    #- r-recommended
-    #- pandoc
 
 # cache local R libraries directory:
 cache:
@@ -70,20 +63,17 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
   - conda install r r-recommended r-markdown
-  #- mkdir -p ~/Rlib
-  #- echo 'R_LIBS=~/Rlib' > .Renviron
-  - echo 'options(repos = "http://cran.rstudio.com")' > .Rprofile
+  #- echo 'options(repos = "http://cran.rstudio.com")' > .Rprofile
   - echo '.travis.yml' > .Rbuildignore
-  - conda install -c conda-forge r-devtools r-biocmanager r-ggpubr r-metap
+  - conda install -c conda-forge r-devtools r-biocmanager r-ggpubr r-metap r-data.table r-rcpparmadillo
   - conda install -c anaconda libnetcdf
-  - conda install -c bioconda bioconductor-clusterProfiler bioconductor-gsva bioconductor-biocstyle
-  - Rscript -e 'BiocManager::install(c("DESeq2", "limma"), quiet=T)'
+  - conda install -c bioconda bioconductor-gsva bioconductor-biocstyle 
+  #- conda install -c bioconda bioconductor-deseq2
+  - Rscript -e 'BiocManager::install(c("DESeq2"))'
+  - Rscript -e 'BiocManager::install(c("limma"), quiet=T)'
   - Rscript -e 'BiocManager::install(c("msmsTests"))'
   - Rscript -e 'BiocManager::install(c("impute"), quiet=T)'
   - Rscript -e 'BiocManager::install(c("biomaRt", "GO.db"), quiet=T)'
-  # Alternative install
-  #- conda install -c bioconda bioconductor-gsva bioconductor-deseq2 bioconductor-limma bioconductor-msmstests bioconductor-impute bioconductor-biomart bioconductor-go.db bioconductor-biocstyle
-  #- Rscript -e 'devtools::install_github("WubingZhang/rMAUPS")'
 
 # Build and check package
 script:
