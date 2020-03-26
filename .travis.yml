@@ -70,11 +70,12 @@ install:
   #- conda install -c conda-forge r-ggpubr r-metap r-data.table r-rcpparmadillo
   #- conda install -c bioconda bioconductor-gsva bioconductor-biocstyle
   #- conda install -c bioconda bioconductor-deseq2
-  - Rscript -e 'install.packages(c("devtools", "BiocManager"))'
-  - Rscript -e 'BiocManager::install(c("GSVA", "BiocStyle"))'
-  - Rscript -e 'BiocManager::install(c("DESeq2"))'
+  - Rscript -e 'install.packages(c("devtools", "BiocManager"), quiet=T)'
+  - Rscript -e 'BiocManager::install(c("ggpubr", "metap", "ggrepel"), quiet=T)'
+  - Rscript -e 'BiocManager::install(c("GSVA", "BiocStyle"), quiet=T)'
+  - Rscript -e 'BiocManager::install(c("DESeq2"), quiet=T)'
   - Rscript -e 'BiocManager::install(c("limma"), quiet=T)'
-  - Rscript -e 'BiocManager::install(c("msmsTests"))'
+  - Rscript -e 'BiocManager::install(c("msmsTests"), quiet=T)'
   - Rscript -e 'BiocManager::install(c("impute"), quiet=T)'
   - Rscript -e 'BiocManager::install(c("biomaRt", "GO.db"), quiet=T)'
 
