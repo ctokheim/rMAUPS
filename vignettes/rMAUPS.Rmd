@@ -30,16 +30,10 @@ $ conda install -c anaconda libnetcdf
 Then you can install all the required R packages in R.
 ```{r installr, eval=FALSE}
 install.packages(c("devtools", "BiocManager"), repos = "https://cloud.r-project.org")
+# Install dependencies
 BiocManager::install(c("GSVA", "DESeq2", "limma", "impute", "biomaRt", "GO.db", "msmsTests", "BiocStyle"))
+# Install rMAUPS from github
 devtools::install_github("WubingZhang/rMAUPS")
-```
-
-## Installation using bash command line
-```{bash installshell, eval=FALSE}
-$ conda install -c anaconda libnetcdf
-$ conda install -c conda-forge r-devtools r-biocmanager r-ggpubr r-metap
-$ Rscript -e 'BiocManager::install(c("GSVA", "DESeq2", "limma", "impute", "biomaRt", "GO.db", "msmsTests", "BiocStyle"))'
-$ Rscript -e 'devtools::install_github("WubingZhang/rMAUPS")'
 ```
 
 ## load required packages
