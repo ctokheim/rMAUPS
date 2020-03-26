@@ -10,12 +10,12 @@ To install rMAUPS, you have to first install conda following the document (https
 
 ```
 # Installing conda on macOS
-wget wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
-bash Miniconda3-latest-MacOSX-x86_64.sh
+$ wget wget https://repo.continuum.io/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+$ bash Miniconda3-latest-MacOSX-x86_64.sh
 
 # Installing conda on Linux
-wget wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-bash Miniconda3-latest-Linux-x86_64.sh
+$ wget wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+$ bash Miniconda3-latest-Linux-x86_64.sh
 
 # Installing conda on Windows
 # 1. Download the installer (.exe file) from https://conda.io/miniconda.html
