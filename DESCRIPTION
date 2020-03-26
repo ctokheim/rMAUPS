@@ -11,7 +11,7 @@ Description: We developed a computational analysis pipeline Model-based Analysis
   and integrative analysis.
 Depends: R (>= 3.5), stats, utils
 Imports: DESeq2, limma, msmsTests, MSnbase, msmsEDA, edgeR, impute, 
-  metap, Biobase, GSVA, matrixStats, ggplot2, ggpubr, GO.db,
+  metap, Biobase, GSVA, matrixStats, ggplot2, ggpubr, msigdbr,
   ggrepel, data.table, shiny, biomaRt, grDevices
 Suggests: BiocStyle, knitr, rmarkdown
 License: GPL (>=3)
