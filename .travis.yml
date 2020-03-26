@@ -77,6 +77,7 @@ install:
   - Rscript -e 'BiocManager::install(c("limma"), quiet = TRUE)'
   - Rscript -e 'BiocManager::install(c("impute"), quiet = TRUE)'
   - Rscript -e 'BiocManager::install(c("biomaRt"))'
+  - Rscript -e 'BiocManager::install("msigdbr")'
   - Rscript -e 'BiocManager::install(c("msmsTests"))'
 
 # Build and check package
