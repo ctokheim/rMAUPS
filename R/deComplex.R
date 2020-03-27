@@ -37,7 +37,7 @@ DeComplex <- function(depres, type = "GOBP+GOCC+CORUM+REACTOME",
 
   ## Visualize differential expressed complexes and pathways
   merged_deres$logP = -log10(merged_deres$pvalue)
-  tmp = merged_deres[grepl("GOBP", rownames(merged_deres)), ]
+  tmp = merged_deres[grepl("C5_BP", rownames(merged_deres)), ]
   p1 = ScatterView(tmp, x = "Zscore", y = "logP", label = "Description",
                    model = "volcano", auto_cut_x = TRUE, force = 5,
                    top = 5, main = "GOBP", ylab = "-log10(p.value)")
@@ -47,7 +47,7 @@ DeComplex <- function(depres, type = "GOBP+GOCC+CORUM+REACTOME",
                    model = "volcano", auto_cut_x = TRUE, force = 5,
                    top = 5, main = "REACTOME", ylab = "-log10(p.value)")
   p2 = p2 + theme(legend.position = "none")
-  tmp = merged_deres[grepl("GOCC", rownames(merged_deres)), ]
+  tmp = merged_deres[grepl("C5_CC", rownames(merged_deres)), ]
   p3 = ScatterView(tmp, x = "Zscore", y = "logP", label = "Description",
                    model = "volcano", auto_cut_x = TRUE, force = 5,
                    top = 5, main = "GOCC", ylab = "-log10(p.value)")

@@ -21,7 +21,7 @@
 #' @author Wubing Zhang
 #'
 #' @examples
-#' gene2path = gsGetter(type = "REACTOME+CORUM")
+#' gene2path = gsGetter(type = "GOBP+CORUM")
 #' head(gene2path)
 #'
 #' @importFrom msigdbr msigdbr
@@ -35,7 +35,7 @@ gsGetter <- function(gmtpath = NULL, type = "All", limit = c(0, Inf),
   type = toupper(unlist(strsplit(type, "\\+")))
   if("ALL" %in% type) type = c("PATHWAY", "GO", "COMPLEX", "MSIGDB")
   if("MSIGDB" %in% type) type = c("C1", "C2", "C3", "C4", "C5", "C6", "C7", "H", type)
-  if("GO" %in% type) type = c("C5", type)
+  if("GO" %in% type) type = c("C5_BP", "C5_CC", "C5_MF", type)
   if("C2" %in% type) type = c("KEGG", "REACTOME", "C2_CP:PID", "C2_CP:BIOCARTA", "C2_CGP", type)
   if("PATHWAY" %in% type) type = c("KEGG", "REACTOME", "C2_CP:PID", "C2_CP:BIOCARTA", type)
   if("COMPLEX" %in% type) type = c("CORUM", type)
@@ -81,6 +81,7 @@ gsGetter <- function(gmtpath = NULL, type = "All", limit = c(0, Inf),
         colnames(m) = c("ENTREZID", "PathwayID", "PathwayName")
         m$PathwayName = gsub("^[[:alnum:]]*_", "", m$PathwayName)
         m$PathwayName = gsub("_", " ", m$PathwayName)
+        if(grepl("^C5",i)) m$PathwayID = gsub("^GO", i, m$PathwayID)
         # m$PathwayName = paste0(substr(m$PathwayName,0,1),
         #                        tolower(substr(m$PathwayName,2,nchar(m$PathwayName))))
         gene2path = rbind(gene2path, m)
