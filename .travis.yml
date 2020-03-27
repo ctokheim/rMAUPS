@@ -15,10 +15,10 @@ branches:
   only:
    - master
 
-# cache local R libraries directory:
-# cache:
-#   directories:
-#     - ~/miniconda
+cache local R libraries directory:
+cache:
+  directories:
+    - ~/miniconda
 
 before_install:
   # Set conda path info
@@ -62,23 +62,20 @@ install:
   - conda update -q conda
   # Useful for debugging any issues with conda
   - conda info -a
-  - conda install r
+  - conda install r r-recommended
   #- conda install -c r r-recommended r-markdown r-biocmanager r-devtools
   - echo 'options(repos = "http://cran.rstudio.com")' > .Rprofile
   - echo '.travis.yml' > .Rbuildignore
   - conda install -c anaconda libnetcdf libxml2
-  #- conda install -c conda-forge r-ggpubr r-metap r-data.table r-rcpparmadillo
-  #- conda install -c bioconda bioconductor-gsva bioconductor-biocstyle
-  #- conda install -c bioconda bioconductor-deseq2
-  - Rscript -e 'install.packages(c("devtools", "BiocManager"))'
-  - Rscript -e 'BiocManager::install(c("ggpubr", "metap", "ggrepel"))'
-  - Rscript -e 'BiocManager::install(c("GSVA", "BiocStyle"))'
-  - Rscript -e 'BiocManager::install(c("DESeq2"))'
-  - Rscript -e 'BiocManager::install(c("limma"), quiet = TRUE)'
-  - Rscript -e 'BiocManager::install(c("impute"), quiet = TRUE)'
-  - Rscript -e 'BiocManager::install(c("biomaRt"))'
-  - Rscript -e 'BiocManager::install("msigdbr")'
-  - Rscript -e 'BiocManager::install(c("msmsTests"))'
+  - conda install -c conda-forge pandoc r-data.table r-rcpparmadillo
+  - Rscript -e 'install.packages(c("devtools", "BiocManager"), quiet=T)'
+  - Rscript -e 'BiocManager::install(c("ggpubr", "metap", "ggrepel"), quiet=T)'
+  - Rscript -e 'BiocManager::install(c("GSVA", "BiocStyle"), quiet=T)'
+  - Rscript -e 'BiocManager::install(c("DESeq2"), quiet=T)'
+  - Rscript -e 'BiocManager::install(c("limma"), quiet=T)'
+  - Rscript -e 'BiocManager::install(c("impute"), quiet=T)'
+  - Rscript -e 'BiocManager::install(c("biomaRt", "msigdb"), quiet=T)'
+  - Rscript -e 'BiocManager::install(c("msmsTests"), quiet=T)'
 
 # Build and check package
 script:
