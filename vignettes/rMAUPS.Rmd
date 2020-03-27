@@ -19,19 +19,24 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Install required packages
-Installing the package in a fresh R environment may take a long time. It may fail because of some issues. You can check the possible issues and solutions from https://github.com/WubingZhang/rMAUPS/issues/3, or post a new issue there. 
+Installing the package in a fresh environment may take a long time. It may fail because of some issues. You can check the possible issues and solutions from https://github.com/WubingZhang/rMAUPS/issues/3, or post a new issue there.
 
-## Installation using R
-One of the dependencies require `libnetcdf`, you can install it using `conda install -c anaconda libnetcdf` in the bash command line. 
-```{bash, eval=FALSE}
-$ conda install -c anaconda libnetcdf
+## Prerequisites
+To install rMAUPS, you have to first install conda following the document (https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html#install-macos-silent).
+
+You should also install r, r-recommended. If you have R installed before, you need to ensure libgfortran, libnetcdf and libxml2 are also installed in your conda environment. Besides, it seems important to have r-data.table and r-rcpparmadillo installed through conda before biocmanager installs dependencies (such as DESeq2).
+
+```{bash, eval = FALSE}
+$ conda install -c r r r-markdown r-recommended
+$ conda install -c anaconda libgfortran libnetcdf libxml2
+$ conda install -c conda-forge pandoc r-data.table r-rcpparmadillo
 ```
 
-Then you can install all the required R packages in R.
+## Installation dependencies and rMAUPS in R
 ```{r installr, eval=FALSE}
 install.packages(c("devtools", "BiocManager"), repos = "https://cloud.r-project.org")
 # Install dependencies
-BiocManager::install(c("GSVA", "DESeq2", "limma", "impute", "biomaRt", "GO.db", "msmsTests", "BiocStyle"))
+BiocManager::install(c("ggpubr", "metap", "ggrepel", "GSVA", "DESeq2", "limma", "impute", "biomaRt", "msigdbr", "BiocStyle", "msmsTests"))
 # Install rMAUPS from github
 devtools::install_github("WubingZhang/rMAUPS")
 ```

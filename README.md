@@ -23,29 +23,20 @@ $ bash Miniconda3-latest-Linux-x86_64.sh
 # 3. Test your installation. In your terminal window or Anaconda Prompt, run the command conda list.
 ```
 
-You should also install r, r-recommended and libnetcdf (required by rMAUPS) in your conda environment.
+You should also install r, r-recommended. If you have R installed before, you need to ensure libgfortran, libnetcdf and libxml2 are also installed in your conda environment. Besides, it seems important to have r-data.table and r-rcpparmadillo installed through conda before biocmanager installs dependencies (such as DESeq2).
 ```
-$ conda install -c r r r-recommended r-markdown
-$ conda install -c anaconda libnetcdf
+$ conda install -c r r r-markdown r-recommended
+$ conda install -c anaconda libgfortran libnetcdf libxml2
+$ conda install -c conda-forge pandoc r-data.table r-rcpparmadillo
 ```
 
-### Installation of rMAUPS using R
-rMAUPS is a R package released from github, so you can install the it using R functions.
+### Installation of rMAUPS in R
 ```
 > install.packages(c("devtools", "BiocManager"), repos = "https://cloud.r-project.org")
 # Install dependencies
-> BiocManager::install(c("GSVA", "DESeq2", "limma", "impute", "biomaRt", "GO.db", "msmsTests", "BiocStyle"))
+> BiocManager::install(c("ggpubr", "metap", "ggrepel", "GSVA", "DESeq2", "limma", "impute", "biomaRt", "msigdbr", "BiocStyle", "msmsTests"))
 # Install rMAUPS from github
 > devtools::install_github("WubingZhang/rMAUPS")
-```
-
-### Installation using bash command line
-```
-# Install dependencies using conda
-$ conda install -c conda-forge r-devtools r-biocmanager r-ggpubr r-metap
-# Installation of some packages from Bioconductor using conda always generates conflicts, so please install these dependencies using Rscript.
-$ Rscript -e 'BiocManager::install(c("GSVA", "DESeq2", "limma", "impute", "biomaRt", "GO.db", "msmsTests", "BiocStyle"))'
-$ Rscript -e 'devtools::install_github("WubingZhang/rMAUPS")'
 ```
 
 ## Tutorial
