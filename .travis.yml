@@ -66,16 +66,15 @@ install:
   #- conda install -c r r-recommended r-markdown r-biocmanager r-devtools
   - echo 'options(repos = "http://cran.rstudio.com")' > .Rprofile
   - echo '.travis.yml' > .Rbuildignore
+  - conda install -c conda-forge r-devtools r-biocmanager r-ggpubr r-metap r-data.table r-rcpparmadillo
   - conda install -c anaconda libnetcdf libxml2
-  - conda install -c conda-forge pandoc r-data.table r-rcpparmadillo
-  - Rscript -e 'install.packages(c("devtools", "BiocManager"), quiet=T)'
-  - Rscript -e 'BiocManager::install(c("ggpubr", "metap", "ggrepel"), quiet=T)'
-  - Rscript -e 'BiocManager::install(c("GSVA", "BiocStyle"), quiet=T)'
-  - Rscript -e 'BiocManager::install(c("DESeq2"), quiet=T)'
+  - conda install -c bioconda bioconductor-gsva bioconductor-biocstyle
+  - conda install -c bioconda bioconductor-biocstyle
+  - Rscript -e 'BiocManager::install(c("DESeq2"))'
   - Rscript -e 'BiocManager::install(c("limma"), quiet=T)'
   - Rscript -e 'BiocManager::install(c("impute"), quiet=T)'
   - Rscript -e 'BiocManager::install(c("biomaRt", "msigdbr"), quiet=T)'
-  - Rscript -e 'BiocManager::install(c("msmsTests"), quiet=T)'
+  - Rscript -e 'BiocManager::install(c("msmsTests"))'
 
 # Build and check package
 script:

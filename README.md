@@ -26,15 +26,16 @@ $ bash Miniconda3-latest-Linux-x86_64.sh
 You should also install r, r-recommended. If you have R installed before, you need to ensure libgfortran, libnetcdf and libxml2 are also installed in your conda environment. Besides, it seems important to have r-data.table and r-rcpparmadillo installed through conda before biocmanager installs dependencies (such as DESeq2).
 ```
 $ conda install -c r r r-markdown r-recommended
-$ conda install -c anaconda libgfortran libnetcdf libxml2
-$ conda install -c conda-forge pandoc r-data.table r-rcpparmadillo
+$ conda install -c anaconda libnetcdf libxml2
+$ conda install -c conda-forge r-devtools r-biocmanager r-ggpubr r-metap r-data.table r-rcpparmadillo
+$ conda install -c bioconda bioconductor-gsva bioconductor-biocstyle
 ```
 
 ### Installation of rMAUPS in R
 ```
 > install.packages(c("devtools", "BiocManager"), repos = "https://cloud.r-project.org")
 # Install dependencies
-> BiocManager::install(c("ggpubr", "metap", "ggrepel", "GSVA", "DESeq2", "limma", "impute", "biomaRt", "msigdbr", "BiocStyle", "msmsTests"))
+> BiocManager::install(c("ggrepel", "DESeq2", "limma", "impute", "biomaRt", "msigdbr", "msmsTests"))
 # Install rMAUPS from github
 > devtools::install_github("WubingZhang/rMAUPS")
 ```
