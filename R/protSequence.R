@@ -7,6 +7,7 @@ library(dplyr)
 library(httr)
 library(jsonlite)
 
+# deprecate function
 saveSeq <- function() {
   # fetch protein sequence
   ensembl.human = useMart(biomart="ensembl", dataset="hsapiens_gene_ensembl")
@@ -27,7 +28,6 @@ saveSeq <- function() {
   return(result)
 }
 
-#myresult <- saveSeq()
 
 # search protein sequences
 searchProtSeq <- function(prot_seq_df, regex){
@@ -40,7 +40,8 @@ searchProtSeq <- function(prot_seq_df, regex){
   motif_hits <- imap(motif_hits, ~.x %>% mutate(UniprotId = .y))
   motif_hits_df <- reduce(compact(motif_hits), rbind)
 
-  return(motif_hits_df)
+  myorder <- c('UniprotId', 'start', 'end')
+  return(motif_hits_df[,myorder])
 }
 
 
