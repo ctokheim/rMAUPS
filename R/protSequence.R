@@ -76,7 +76,7 @@ browseProtStructure <- function(protId, start, end,
   # browse url if there is available prot structure
   if (jsonResponseParsed$hit){
     print(fullUrl)
-    #browseURL(fullUrl)
+    browseURL(fullUrl)
   } else {
     print('No protein structure available!') 
   }
