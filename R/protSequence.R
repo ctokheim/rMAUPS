@@ -51,14 +51,19 @@ browseProtStructure <- function(protId, start, end,
   require(httr)
   require(jsonlite)
 
-  # build uniprot query
+  stopifnot(length(start)==length(end))
+
   uniProtSeq <- ""
-  for (pos in seq(start, end)){
-    tmp <- paste(protId, pos, sep=':')
-    if (uniProtSeq==''){
-      uniProtSeq <- tmp
-    } else {
-      uniProtSeq <- paste(uniProtSeq, tmp, sep=',')
+  for (i in 1:length(start)){
+    # build uniprot query
+    s <- start[i] ; e <- end[i]
+    for (pos in seq(s, e)){
+      tmp <- paste(protId, pos, sep=':')
+      if (uniProtSeq==''){
+        uniProtSeq <- tmp
+      } else {
+        uniProtSeq <- paste(uniProtSeq, tmp, sep=',')
+      }
     }
   }
 
@@ -71,7 +76,7 @@ browseProtStructure <- function(protId, start, end,
   # browse url if there is available prot structure
   if (jsonResponseParsed$hit){
     print(fullUrl)
-    browseURL(fullUrl)
+    #browseURL(fullUrl)
   } else {
     print('No protein structure available!') 
   }
