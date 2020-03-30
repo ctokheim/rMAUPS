@@ -76,7 +76,11 @@ browseProtStructure <- function(protId, start, end,
   # browse url if there is available prot structure
   if (jsonResponseParsed$hit){
     print(fullUrl)
-    browseURL(fullUrl)
+    if (Sys.getenv('R_BROWSER')!="") {
+      browseURL(fullUrl)
+    } else {
+      print('Browser not set!')
+    }
   } else {
     print('No protein structure available!') 
   }
