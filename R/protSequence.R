@@ -1,4 +1,3 @@
-library(biomaRt)
 library(stringr)
 library(purrr)
 library(dplyr)
@@ -7,7 +6,24 @@ library(dplyr)
 library(httr)
 library(jsonlite)
 
-# search protein sequences
+#' Search protein sequences using a regular expression
+#'
+#' @docType methods
+#' @name searchProtSeq
+#' @rdname searchProtSeq
+#'
+#' @param prot_seq_df A data.frame containing uniprot IDs under the "ID" column and protein sequence under the "protein_sequence" column
+#' @param regex a string containing the regular expression to search against the protein sequences
+#'
+#' @return A data frame object
+#'
+#' @author Collin Tokheim
+#'
+#' @import purrr
+#' @import dplyr
+#' @import stringr
+#' @export
+
 searchProtSeq <- function(prot_seq_df, regex){
   # regex search all protein sequences
   motif_hits <- str_locate_all(prot_seq_df$protein_sequence, regex) 
@@ -22,6 +38,27 @@ searchProtSeq <- function(prot_seq_df, regex){
   return(motif_hits_df[,myorder])
 }
 
+
+#' View protein sequence positions on protein structure
+#'
+#' @docType methods
+#' @name browseProtStructure
+#' @rdname browseProtStructure
+#'
+#' @param protId a uniprot id string
+#' @param start a vector of start positions
+#' @param end a vector of end positions
+#' @param doBrowse a boolean indicator on whether to open browser to view protein structure
+#' @param baseUrl string for location of mupit service
+#' @param checkBaseUrl string for location of mupit service to check availability of protein structure
+#'
+#' @return None
+#'
+#' @author Collin Tokheim
+#'
+#' @import httr
+#' @import jsonlite
+#' @export
 
 browseProtStructure <- function(protId, start, end, 
                                 doBrowse=TRUE,
