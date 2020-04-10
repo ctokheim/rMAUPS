@@ -29,8 +29,8 @@ searchProtSeq <- function(prot_seq_df, regex){
   # format motif hits
   motif_hits <- purrr::map(motif_hits, as.data.frame)
   names(motif_hits) <- prot_seq_df$ID
-  motif_hits <- purrr::imap(motif_hits, ~.x %>% mutate(UniprotId = .y))
-  motif_hits_df <- dplyr::reduce(compact(motif_hits), rbind)
+  motif_hits <- purrr::imap(motif_hits, ~.x %>% dplyr::mutate(UniprotId = .y))
+  motif_hits_df <- purrr::reduce(compact(motif_hits), rbind)
 
   myorder <- c('UniprotId', 'start', 'end')
   return(motif_hits_df[,myorder])
