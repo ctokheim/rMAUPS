@@ -30,6 +30,44 @@ searchProtSeq <- function(prot_seq_df, regex){
 }
 
 
+#' Reads in the ubiquitination site data from Phosphosite Plus database
+#'
+#' @docType methods
+#' @name readPSPUbiquitin
+#' @rdname readPSPUbiquitin
+#'
+#' @param path File path to Ubiquitination_site_dataset from phosphositeplus db
+#' @param minStudies Minimum number of studies reporting UB site to keep it
+#'
+#' @return A data frame object
+#'
+#' @author Collin Tokheim
+#'
+#' @import stringr
+#' @export
+readPSPUbiquitin <- function(path, minStudies=1) {
+  # read in ub site data
+  ub <- read.delim(path, sep='\t', stringsAsFactors=F)
+
+  # only keep human cases
+  ub = ub[ub['ORGANISM']=='human',]
+
+  # extract out the position of the UB
+  ub['position'] <- stringr::str_sub(ub$MOD_RSD, 2, stringr::str_length(ub$MOD_RSD)-3)
+  ub$position <- as.numeric(ub$position)
+
+  # only keep sites that have been reported at least minStudies times
+  numReports <- rowSums(ub[,c('LT_LIT', 'MS_LIT', 'MS_CST')], na.rm=T)
+  ub <- ub[numReports>=minStudies,]
+
+  # rename columns
+  names(ub)[names(ub)=='ACC_ID'] <- 'ID'
+  names(ub)[names(ub)=='GENE'] <- 'gene'
+
+  return(ub)
+}
+
+
 #' View protein sequence positions on protein structure
 #'
 #' @docType methods
