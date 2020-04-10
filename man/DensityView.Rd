@@ -5,8 +5,16 @@
 \alias{DensityView}
 \title{Density plot for gene beta scores in Control and Treatment}
 \usage{
-DensityView(beta, samples = NULL, main = NULL, xlab = "Beta Score",
-  filename = NULL, width = 5, height = 4, ...)
+DensityView(
+  beta,
+  samples = NULL,
+  main = NULL,
+  xlab = "Beta Score",
+  filename = NULL,
+  width = 5,
+  height = 4,
+  ...
+)
 }
 \arguments{
 \item{beta}{Data frame, including \code{samples} as columns.}

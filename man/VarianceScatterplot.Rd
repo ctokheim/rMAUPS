@@ -5,8 +5,12 @@
 \alias{VarianceScatterplot}
 \title{generate a scatter plot of the variance}
 \usage{
-VarianceScatterplot(fit, xlab = "log2(count)", ylab = "log(Variance)",
-  main = NULL)
+VarianceScatterplot(
+  fit,
+  xlab = "log2(count)",
+  ylab = "log(Variance)",
+  main = NULL
+)
 }
 \arguments{
 \item{fit}{an object returned from \code{SpectraCounteBayes} function.}

@@ -5,8 +5,7 @@
 \alias{MAUPSr}
 \title{rMAUPS pipeline - QC, differential analysis, integrative analysis.}
 \usage{
-MAUPSr(metadata, outdir = "./", qc = TRUE, type = "msms",
-  method = "limma")
+MAUPSr(metadata, outdir = "./", qc = TRUE, type = "msms", method = "limma")
 }
 \arguments{
 \item{metadata}{File path or data frame of the meta data, including columns of

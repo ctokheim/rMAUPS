@@ -5,8 +5,12 @@
 \alias{Residualplot}
 \title{plot the residuals against the number of quantified peptides/PSMs.}
 \usage{
-Residualplot(fit, xlab = "log2(count)",
-  ylab = "Variance(fitted - observed)", main = NULL)
+Residualplot(
+  fit,
+  xlab = "log2(count)",
+  ylab = "Variance(fitted - observed)",
+  main = NULL
+)
 }
 \arguments{
 \item{fit}{an object returned from \code{SpectraCounteBayes} function.}

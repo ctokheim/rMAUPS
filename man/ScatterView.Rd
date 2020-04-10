@@ -5,14 +5,36 @@
 \alias{ScatterView}
 \title{Scatter plot}
 \usage{
-ScatterView(data, x = "x", y = "y", label = 0, model = c("none",
-  "ninesquare", "volcano", "rank")[1], x_cut = NULL, y_cut = NULL,
-  slope = 1, intercept = NULL, auto_cut = FALSE,
-  auto_cut_x = auto_cut, auto_cut_y = auto_cut,
-  auto_cut_diag = auto_cut, groups = NULL, group_col = NULL,
-  groupnames = NULL, label.top = TRUE, top = 0, toplabels = NULL,
-  display_cut = FALSE, color = NULL, shape = 16, size = 1,
-  main = NULL, xlab = x, ylab = y, legend = "none", ...)
+ScatterView(
+  data,
+  x = "x",
+  y = "y",
+  label = 0,
+  model = c("none", "ninesquare", "volcano", "rank")[1],
+  x_cut = NULL,
+  y_cut = NULL,
+  slope = 1,
+  intercept = NULL,
+  auto_cut = FALSE,
+  auto_cut_x = auto_cut,
+  auto_cut_y = auto_cut,
+  auto_cut_diag = auto_cut,
+  groups = NULL,
+  group_col = NULL,
+  groupnames = NULL,
+  label.top = TRUE,
+  top = 0,
+  toplabels = NULL,
+  display_cut = FALSE,
+  color = NULL,
+  shape = 16,
+  size = 1,
+  main = NULL,
+  xlab = x,
+  ylab = y,
+  legend = "none",
+  ...
+)
 }
 \arguments{
 \item{data}{Data frame.}

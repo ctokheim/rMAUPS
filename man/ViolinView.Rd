@@ -6,8 +6,16 @@
 \alias{violinview}
 \title{Violin plot}
 \usage{
-ViolinView(beta, samples = NULL, main = NULL, ylab = "Beta Score",
-  filename = NULL, width = 5, height = 4, ...)
+ViolinView(
+  beta,
+  samples = NULL,
+  main = NULL,
+  ylab = "Beta Score",
+  filename = NULL,
+  width = 5,
+  height = 4,
+  ...
+)
 }
 \arguments{
 \item{beta}{Data frame, , including \code{samples} as columns.}

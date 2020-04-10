@@ -5,9 +5,19 @@
 \alias{IdentBarView}
 \title{Identical bar plot}
 \usage{
-IdentBarView(gg, x = "x", y = "y", fill = c("#CF3C2B", "#394E80"),
-  main = NULL, xlab = NULL, ylab = NULL, filename = NULL,
-  width = 5, height = 4, ...)
+IdentBarView(
+  gg,
+  x = "x",
+  y = "y",
+  fill = c("#CF3C2B", "#394E80"),
+  main = NULL,
+  xlab = NULL,
+  ylab = NULL,
+  filename = NULL,
+  width = 5,
+  height = 4,
+  ...
+)
 }
 \arguments{
 \item{gg}{A data frame.}

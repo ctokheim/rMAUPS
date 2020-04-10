@@ -5,8 +5,14 @@
 \alias{pcView}
 \title{Principal component visualization}
 \usage{
-pcView(mat, color = gsub(".*_", "", colnames(mat)), filename = NULL,
-  width = 5, height = 4, ...)
+pcView(
+  mat,
+  color = gsub(".*_", "", colnames(mat)),
+  filename = NULL,
+  width = 5,
+  height = 4,
+  ...
+)
 }
 \arguments{
 \item{mat}{A data matrix.}
