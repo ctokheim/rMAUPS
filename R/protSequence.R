@@ -55,7 +55,6 @@ searchProtSeq <- function(prot_seq_df, regex){
 #' @author Collin Tokheim
 #'
 #' @import httr
-#' @import jsonlite
 #' @export
 browseProtStructure <- function(protId, start, end, 
                                 doBrowse=TRUE,
