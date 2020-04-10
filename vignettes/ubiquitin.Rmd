@@ -1,5 +1,5 @@
 ---
-title: "rMAUPS: Analysis of Ubiquitination"
+title: "rMAUPS: Analysis of Potential for Ubiquitination"
 author:
 - name: Collin Tokheim, Wubing Zhang, Jun Ge, X. Shirley Liu
   affiliation: Dana-Farber Cancer Institute
@@ -30,7 +30,6 @@ Next, read in protein sequences from uniprot.
 
 ```{r listfile}
 uniprot_path <- system.file("extdata", "human_uniprot_seq.txt", package = "rMAUPS")
-#uniprot_path <- file.path(datapath, "human_uniprot_seq.txt")
 uniprot <- read.delim(uniprot_path, sep='\t')
 head(uniprot)
 ```
@@ -42,7 +41,7 @@ lysine_pos <- searchProtSeq(head(uniprot), 'K')
 head(lysine_pos)
 ```
 
-Although not used here, the searchProtSeq function can also handle searching for sequences using regular expression.
+Note, for the sake of a quick example, the above command only searched against the top few protein sequences. Additionally, although not used here, the searchProtSeq function can also handle searching for sequences using regular expression.
 
 # Viewing protein structure
 
