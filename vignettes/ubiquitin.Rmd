@@ -47,13 +47,13 @@ Although not used here, the searchProtSeq function can also handle searching for
 # Viewing protein structure
 
 ```{r viewProt}
-# get hits for Q9HBI6
-id <- 'Q9HBI6'
+# get hits for P01116
+id <- 'P01116'
 start <- lysine_pos[lysine_pos['UniprotId']==id, 'start']
 end <- lysine_pos[lysine_pos['UniprotId']==id, 'end']
 
 # view on protein structure
-viewProtStructure(id, start, end)
+browseProtStructure(id, start, end)
 ```
 
 # Session info
