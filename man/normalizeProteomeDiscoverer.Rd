@@ -5,8 +5,13 @@
 \alias{normalizeProteomeDiscoverer}
 \title{Normalization of ProteomeDiscoverer-exported proteomic data}
 \usage{
-normalizeProteomeDiscoverer(prot, output = NULL, norm = "median",
-  log2 = FALSE, return = FALSE)
+normalizeProteomeDiscoverer(
+  prot,
+  output = NULL,
+  norm = "median",
+  log2 = FALSE,
+  return = FALSE
+)
 }
 \arguments{
 \item{prot}{A file (or folder) path of proteomics data. Or a data frame of proteomics data,

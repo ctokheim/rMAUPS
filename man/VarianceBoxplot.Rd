@@ -5,8 +5,13 @@
 \alias{VarianceBoxplot}
 \title{generate a boxplot of the variance}
 \usage{
-VarianceBoxplot(fit, n = 20, xlab = "PSM count",
-  ylab = "log(Variance)", main = NULL)
+VarianceBoxplot(
+  fit,
+  n = 20,
+  xlab = "PSM count",
+  ylab = "log(Variance)",
+  main = NULL
+)
 }
 \arguments{
 \item{fit}{an object returned from \code{SpectraCounteBayes} function.}

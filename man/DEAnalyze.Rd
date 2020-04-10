@@ -5,10 +5,16 @@
 \alias{DEAnalyze}
 \title{Differential expression analysis}
 \usage{
-DEAnalyze(obj, SampleAnn = NULL, type = "Array", method = "limma",
-  paired = FALSE, GeneAnn = NULL, return = c("data.frame",
-  "ExpressionSet")[1],
-  app.dir = "/Users/Wubing/Applications/gfold/gfold")
+DEAnalyze(
+  obj,
+  SampleAnn = NULL,
+  type = "Array",
+  method = "limma",
+  paired = FALSE,
+  GeneAnn = NULL,
+  return = c("data.frame", "ExpressionSet")[1],
+  app.dir = "/Users/Wubing/Applications/gfold/gfold"
+)
 }
 \arguments{
 \item{obj}{Matrix like object or an ExpressionSet instance.}

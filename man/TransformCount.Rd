@@ -7,8 +7,12 @@
 This wrapper function combines filtering out genes with low reads
 in a number of samples with normalization.}
 \usage{
-TransformCount(m, method = c("TPM", "voom", "vst", "rlog")[1],
-  idType = "Ensembl", org = "hsa")
+TransformCount(
+  m,
+  method = c("TPM", "voom", "vst", "rlog")[1],
+  idType = "Ensembl",
+  org = "hsa"
+)
 }
 \arguments{
 \item{m}{raw count matrix (genes are rows, columns are samples)}
