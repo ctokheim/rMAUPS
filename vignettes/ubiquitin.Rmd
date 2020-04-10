@@ -23,15 +23,14 @@ This vignette assumes that you have already properly installed rMAUPS.
 First, load the rMAUPS package.
 
 ```{r libs}
-library(ggplot2)
 library(rMAUPS)
 ```
 
 Next, read in protein sequences from uniprot.
 
 ```{r listfile}
-datapath <- system.file("extdata", package = "rMAUPS")
-uniprot_path <- file.path(datapath, "human_uniprot_seq.txt")
+uniprot_path <- system.file("extdata", "human_uniprot_seq.txt", package = "rMAUPS")
+#uniprot_path <- file.path(datapath, "human_uniprot_seq.txt")
 uniprot <- read.delim(uniprot_path, sep='\t')
 head(uniprot)
 ```
@@ -47,6 +46,15 @@ Although not used here, the searchProtSeq function can also handle searching for
 
 # Viewing protein structure
 
+```{r viewProt}
+# get hits for Q9HBI6
+id <- 'Q9HBI6'
+start <- lysine_pos[lysine_pos['UniprotId']==id, 'start']
+end <- lysine_pos[lysine_pos['UniprotId']==id, 'end']
+
+# view on protein structure
+viewProtStructure(id, start, end)
+```
 
 # Session info
 

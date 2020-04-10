@@ -1,10 +1,3 @@
-#library(stringr)
-#library(purrr)
-#library(dplyr)
-# parse mupit response
-#library(httr)
-#library(jsonlite)
-
 #' Search protein sequences using a regular expression
 #'
 #' @docType methods
@@ -85,15 +78,15 @@ browseProtStructure <- function(protId, start, end,
   fullUrl <- paste0(baseUrl, uniProtSeq, '&protquery=y')
   # browse url if there is available prot structure
   if (jsonResponseParsed$hit){
-    print(fullUrl)
+    cat(paste0(fullUrl, '\n'))
     if (!doBrowse) {
       # pass, do nothing 
     } else if (Sys.getenv('R_BROWSER')!="") {
       browseURL(fullUrl)
     } else {
-      print('Browser not set!')
+      cat('\nBrowser not set!\n')
     }
   } else {
-    print('No protein structure available!') 
+    cat('\nNo protein structure available!\n')
   }
 }
