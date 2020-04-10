@@ -7,28 +7,6 @@ library(dplyr)
 library(httr)
 library(jsonlite)
 
-# deprecate function
-saveSeq <- function() {
-  # fetch protein sequence
-  ensembl.human = useMart(biomart="ensembl", dataset="hsapiens_gene_ensembl")
-  ann <- getBM(attributes=c('uniprotswissprot'), mart=ensembl.human)
-  human.prot = getSequence(id=ann$uniprotswissprot,
-                           mart=ensembl.human,
-                           seqType=c("peptide"),
-                           type="uniprotswissprot")
-
-  # reformat result and calculate protein lengths
-  result <- as.data.frame(cbind(human.prot[2], human.prot[1]))
-  result['protein_sequence'] <- str_sub(result$peptide, start=1, end=-2)
-  result$length <- nchar(result$peptide) - 1
-
-  # write out
-  write.table(x=result[,c('uniprotswissprot', 'protein_sequence')], sep='\t', row.names=F, quote=F, file="uniprot_protein_sequence.txt")
-
-  return(result)
-}
-
-
 # search protein sequences
 searchProtSeq <- function(prot_seq_df, regex){
   # regex search all protein sequences
@@ -49,8 +27,8 @@ browseProtStructure <- function(protId, start, end,
                                 doBrowse=TRUE,
                                 baseUrl='https://mupit.icm.jhu.edu/MuPIT_Interactive/?gm=',
                                 checkBaseUrl='https://mupit.icm.jhu.edu/MuPIT_Interactive/rest/showstructure/check?pos='){
-  require(httr)
-  require(jsonlite)
+  requireNamespace(httr)
+  requireNamespace(jsonlite)
 
   stopifnot(length(start)==length(end))
 
