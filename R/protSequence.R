@@ -1,10 +1,9 @@
-library(stringr)
-library(purrr)
-library(dplyr)
-
+#library(stringr)
+#library(purrr)
+#library(dplyr)
 # parse mupit response
-library(httr)
-library(jsonlite)
+#library(httr)
+#library(jsonlite)
 
 #' Search protein sequences using a regular expression
 #'
@@ -25,13 +24,13 @@ library(jsonlite)
 #' @export
 searchProtSeq <- function(prot_seq_df, regex){
   # regex search all protein sequences
-  motif_hits <- str_locate_all(prot_seq_df$protein_sequence, regex) 
+  motif_hits <- stringr::str_locate_all(prot_seq_df$protein_sequence, regex) 
   
   # format motif hits
-  motif_hits <- map(motif_hits, as.data.frame)
+  motif_hits <- purrr::map(motif_hits, as.data.frame)
   names(motif_hits) <- prot_seq_df$ID
-  motif_hits <- imap(motif_hits, ~.x %>% mutate(UniprotId = .y))
-  motif_hits_df <- reduce(compact(motif_hits), rbind)
+  motif_hits <- purrr::imap(motif_hits, ~.x %>% mutate(UniprotId = .y))
+  motif_hits_df <- dplyr::reduce(compact(motif_hits), rbind)
 
   myorder <- c('UniprotId', 'start', 'end')
   return(motif_hits_df[,myorder])
@@ -62,8 +61,6 @@ browseProtStructure <- function(protId, start, end,
                                 doBrowse=TRUE,
                                 baseUrl='https://mupit.icm.jhu.edu/MuPIT_Interactive/?gm=',
                                 checkBaseUrl='https://mupit.icm.jhu.edu/MuPIT_Interactive/rest/showstructure/check?pos='){
-  requireNamespace(httr)
-  requireNamespace(jsonlite)
 
   stopifnot(length(start)==length(end))
 
@@ -82,8 +79,8 @@ browseProtStructure <- function(protId, start, end,
   }
 
   # check if prot structure available
-  jsonResponse <- GET(paste0(checkBaseUrl, uniProtSeq, '&protquery=y'))
-  jsonResponseParsed <- content(jsonResponse, as="parsed")
+  jsonResponse <- httr::GET(paste0(checkBaseUrl, uniProtSeq, '&protquery=y'))
+  jsonResponseParsed <- httr::content(jsonResponse, as="parsed")
 
   # construct url
   fullUrl <- paste0(baseUrl, uniProtSeq, '&protquery=y')
