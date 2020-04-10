@@ -7,7 +7,7 @@ package: "rMAUPS - 0.1.1"
 output:
   BiocStyle::html_document
 vignette: |
-  %\VignetteIndexEntry{rMAUPS}
+  %\VignetteIndexEntry{Ubiquitin}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -20,7 +20,14 @@ This vignette assumes that you have already properly installed rMAUPS.
 
 # Searching protein sequence
 
-First load in protein sequences from uniprot.
+First, load the rMAUPS package.
+
+```{r libs}
+library(ggplot2)
+library(rMAUPS)
+```
+
+Next, read in protein sequences from uniprot.
 
 ```{r listfile}
 datapath <- system.file("extdata", package = "rMAUPS")

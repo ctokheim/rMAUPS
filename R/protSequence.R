@@ -23,7 +23,6 @@ library(jsonlite)
 #' @import dplyr
 #' @import stringr
 #' @export
-
 searchProtSeq <- function(prot_seq_df, regex){
   # regex search all protein sequences
   motif_hits <- str_locate_all(prot_seq_df$protein_sequence, regex) 
@@ -59,7 +58,6 @@ searchProtSeq <- function(prot_seq_df, regex){
 #' @import httr
 #' @import jsonlite
 #' @export
-
 browseProtStructure <- function(protId, start, end, 
                                 doBrowse=TRUE,
                                 baseUrl='https://mupit.icm.jhu.edu/MuPIT_Interactive/?gm=',
