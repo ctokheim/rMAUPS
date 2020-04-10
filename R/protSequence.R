@@ -46,6 +46,7 @@ searchProtSeq <- function(prot_seq_df, regex){
 
 
 browseProtStructure <- function(protId, start, end, 
+                                doBrowse=TRUE,
                                 baseUrl='https://mupit.icm.jhu.edu/MuPIT_Interactive/?gm=',
                                 checkBaseUrl='https://mupit.icm.jhu.edu/MuPIT_Interactive/rest/showstructure/check?pos='){
   require(httr)
@@ -76,7 +77,9 @@ browseProtStructure <- function(protId, start, end,
   # browse url if there is available prot structure
   if (jsonResponseParsed$hit){
     print(fullUrl)
-    if (Sys.getenv('R_BROWSER')!="") {
+    if (!doBrowse) {
+      # pass, do nothing 
+    } else if (Sys.getenv('R_BROWSER')!="") {
       browseURL(fullUrl)
     } else {
       print('Browser not set!')
