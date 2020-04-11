@@ -45,7 +45,7 @@ Note, for the sake of a quick example, the above command only searched against t
 
 # Viewing protein structure
 
-First, we'll view all of the lysine residues for KRAS.
+First, we'll view all of the lysine residues for KRAS. The below code will open a protein structure viewer using your default web browser.
 
 ```{r viewProt}
 # get hits for P01116
