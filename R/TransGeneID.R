@@ -27,7 +27,8 @@
 #' @examples
 #' TransGeneID("NFE2L2", organism="hsa")
 #' TransGeneID("NFE2L2", toType="uniprot")
-#' @import biomaRt
+#'
+#' @importFrom biomaRt useMart getLDS listAttributes getBM
 #' @export
 
 TransGeneID <- function(genes, fromType="Symbol", toType="Entrez",
@@ -58,11 +59,11 @@ TransGeneID <- function(genes, fromType="Symbol", toType="Entrez",
     if(all(c(fromType, toType) %in% c("entrez", "symbol", "ensembl", "refseq", "uniprot"))){
       ann <- getGeneAnn(organism, update=update)[c(fromType, toType)]
     }else{
-      requireNamespace("biomaRt")
       ds = datasets[grepl(organism, datasets)]
-      ensembl <- useMart(biomart = 'ENSEMBL_MART_ENSEMBL', dataset = ds, host = ensemblHost)
+      ensembl <- biomaRt::useMart(biomart = 'ENSEMBL_MART_ENSEMBL',
+                                  dataset = ds, host = ensemblHost)
       ## decide the attributes automatically
-      attrs = listAttributes(ensembl)$name
+      attrs = biomaRt::listAttributes(ensembl)$name
       if(sum(attrs==fromType)==0){
         idx1 = grepl(tolower(fromType), attrs)
         idx = idx1
@@ -78,8 +79,8 @@ TransGeneID <- function(genes, fromType="Symbol", toType="Entrez",
         if(toType=="hgnc_symbol" & toOrg=="mmu") toType = "mgi_symbol"
       }
       ## retrieve the data
-      ann = getBM(attributes=c(fromType, toType), mart = ensembl,
-                  filters = fromType, values = genes)
+      ann = biomaRt::getBM(attributes=c(fromType, toType), mart = ensembl,
+                           filters = fromType, values = genes)
     }
     ## merge the annotation
     colnames(ann) = c(fromType, toType)
@@ -107,11 +108,11 @@ TransGeneID <- function(genes, fromType="Symbol", toType="Entrez",
       colnames(ann) = c(fromOrg, toOrg)
     }else{
       ## Ortholog ID mapping.
-      from = useMart("ensembl", dataset = datasets[grepl(fromOrg, datasets)])
-      to = useMart("ensembl", dataset = datasets[grepl(toOrg, datasets)])
+      from = biomaRt::useMart("ensembl", dataset = datasets[grepl(fromOrg, datasets)])
+      to = biomaRt::useMart("ensembl", dataset = datasets[grepl(toOrg, datasets)])
       ## decide the attributes automatically
-      attrs_1 = listAttributes(from)$name
-      attrs_2 = listAttributes(to)$name
+      attrs_1 = biomaRt::listAttributes(from)$name
+      attrs_2 = biomaRt::listAttributes(to)$name
       if(sum(attrs_1==fromType)==0){
         idx1 = grepl(tolower(fromType), attrs_1)
         idx = idx1
@@ -127,7 +128,7 @@ TransGeneID <- function(genes, fromType="Symbol", toType="Entrez",
         if(toType=="hgnc_symbol" & toOrg=="mmu") toType = "mgi_symbol"
       }
       ## retrieve the data
-      ann = getLDS(attributes = fromType, mart = from,
+      ann = biomaRt::getLDS(attributes = fromType, mart = from,
                    filters = fromType, values = genes,
                    attributesL = toType, martL = to)
       colnames(ann) = c(fromOrg, toOrg)
@@ -374,7 +375,7 @@ getGeneAnn <- function(org = "hsa", update = FALSE){
 #'
 #'
 #' @export
-#' @import biomaRt
+#' @importFrom biomaRt useMart getLDS
 #'
 getOrtAnn <- function(fromOrg = "mmu", toOrg = "hsa", update = FALSE){
   #### Read rds file directly ####
@@ -431,14 +432,13 @@ getOrtAnn <- function(fromOrg = "mmu", toOrg = "hsa", update = FALSE){
   datasets = paste0(c("hsapiens", "mmusculus", "btaurus", "cfamiliaris",
                       "ptroglodytes", "rnorvegicus", "sscrofa"), "_gene_ensembl")
   ## Ortholog ID mapping.
-  requireNamespace("biomaRt")
-  from = useMart("ensembl", dataset = datasets[grepl(fromOrg, datasets)])
-  to = useMart("ensembl", dataset = datasets[grepl(toOrg, datasets)])
+  from = biomaRt::useMart("ensembl", dataset = datasets[grepl(fromOrg, datasets)])
+  to = biomaRt::useMart("ensembl", dataset = datasets[grepl(toOrg, datasets)])
   ## decide the attributes automatically
   from_symbol <- ifelse(fromOrg=="mmu", "mgi_symbol", "hgnc_symbol")
   to_symbol <- ifelse(toOrg=="mmu", "mgi_symbol", "hgnc_symbol")
   ## retrieve the data
-  ensembl_ann = getLDS(attributes = c(from_symbol, "entrezgene_id"), mart = from,
+  ensembl_ann = biomaRt::getLDS(attributes = c(from_symbol, "entrezgene_id"), mart = from,
                        attributesL = c(to_symbol, "entrezgene_id"), martL = to)
   colnames(ensembl_ann) = c(paste0(fromOrg, c("_symbol", "_entrez")),
                             paste0(toOrg, c("_symbol", "_entrez")))

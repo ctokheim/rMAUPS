@@ -54,32 +54,34 @@ TransformCount <- function(m, method=c("TPM", "voom", "vst", "rlog")[1],
 #' @return A tpm expression profile.
 #'
 #' @author Wubing Zhang
-#' @import biomaRt
+#' @importFrom biomaRt useMart getBM
 #' @export
 #'
 Count2TPM <- function(countMat, idType = "Ensembl", org="hsa")
 {
-  requireNamespace("biomaRt")
   datasets = paste0(c("hsapiens", "mmusculus", "btaurus", "cfamiliaris",
                       "ptroglodytes", "rnorvegicus", "sscrofa"), "_gene_ensembl")
-  type = c("ensembl_gene_id", "entrezgene", "hgnc_symbol", "start_position", "end_position")
+  type = c("ensembl_gene_id", "entrezgene_id", "hgnc_symbol", "transcript_length")
   if(org=="mmu") type[3] = "mgi_symbol"
   # listEnsemblArchives()
   # listMarts()
   # listAttributes()
   ds = datasets[grepl(org, datasets)]
-  mart <- useMart(host = "www.ensembl.org", biomart = 'ENSEMBL_MART_ENSEMBL', dataset = ds)
-  ensembl = getBM(attributes=type, mart = mart)
-  ensembl$Length <- abs(ensembl$end_position - ensembl$start_position)
+  mart <- biomaRt::useMart(host = "www.ensembl.org", biomart = 'ENSEMBL_MART_ENSEMBL', dataset = ds)
+  ensembl = biomaRt::getBM(attributes=type, mart = mart)
   if(toupper(idType) == "ENSEMBL"){
-    len <- ensembl[match(rownames(countMat),ensembl$ensembl_gene_id), "Length"]
-    rownames(countMat) = ensembl[match(rownames(countMat), ensembl$ensembl_gene_id), 3]
-  }
-  else if(toupper(idType) == "SYMBOL")
-    len <- ensembl[match(rownames(countMat), ensembl[,3]), "Length"]
-  else if(toupper(idType) == "ENTREZ")
-    len <- ensembl[match(rownames(countMat), ensembl[,2]), "Length"]
-  else
+    len = aggregate(ensembl$transcript_length, list(ID=ensembl$ensembl_gene_id), median)
+    rownames(len) = len$ID
+    len = len[rownames(countMat),2]; names(len) = rownames(countMat)
+  }else if(toupper(idType) == "SYMBOL"){
+    len = aggregate(ensembl$transcript_length, list(ID=ensembl[,3]), median)
+    rownames(len) = len$ID
+    len = len[rownames(countMat),2]; names(len) = rownames(countMat)
+  }else if(toupper(idType) == "ENTREZ"){
+    len = aggregate(ensembl$transcript_length, list(ID=ensembl[,2]), median)
+    rownames(len) = len$ID
+    len = len[rownames(countMat),2]; names(len) = rownames(countMat)
+  }else
     stop("Please input right type of gene name, such as Ensembl or gene Symbol ...")
 
   na_idx = which(is.na(len))

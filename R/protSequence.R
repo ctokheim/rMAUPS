@@ -11,19 +11,19 @@
 #'
 #' @author Collin Tokheim
 #'
-#' @import purrr
-#' @import dplyr
-#' @import stringr
+#' @importFrom purrr map imap reduce compact
+#' @importFrom dplyr mutate
+#' @importFrom stringr str_locate_all
 #' @export
 searchProtSeq <- function(prot_seq_df, regex){
   # regex search all protein sequences
-  motif_hits <- stringr::str_locate_all(prot_seq_df$protein_sequence, regex) 
-  
+  motif_hits <- stringr::str_locate_all(prot_seq_df$protein_sequence, regex)
+
   # format motif hits
   motif_hits <- purrr::map(motif_hits, as.data.frame)
   names(motif_hits) <- prot_seq_df$ID
   motif_hits <- purrr::imap(motif_hits, ~.x %>% dplyr::mutate(UniprotId = .y))
-  motif_hits_df <- purrr::reduce(compact(motif_hits), rbind)
+  motif_hits_df <- purrr::reduce(purrr::compact(motif_hits), rbind)
 
   myorder <- c('UniprotId', 'start', 'end')
   return(motif_hits_df[,myorder])
@@ -43,7 +43,7 @@ searchProtSeq <- function(prot_seq_df, regex){
 #'
 #' @author Collin Tokheim
 #'
-#' @import stringr
+#' @importFrom stringr str_sub str_length
 #' @export
 readPSPUbiquitin <- function(path, minStudies=1) {
   # read in ub site data
@@ -85,28 +85,17 @@ readPSPUbiquitin <- function(path, minStudies=1) {
 #'
 #' @author Collin Tokheim
 #'
-#' @import httr
+#' @importFrom httr GET content
 #' @export
-browseProtStructure <- function(protId, start, end, 
+browseProtStructure <- function(protId, start, end,
                                 doBrowse=TRUE,
                                 baseUrl='https://mupit.icm.jhu.edu/MuPIT_Interactive/?gm=',
                                 checkBaseUrl='https://mupit.icm.jhu.edu/MuPIT_Interactive/rest/showstructure/check?pos='){
 
   stopifnot(length(start)==length(end))
 
-  uniProtSeq <- ""
-  for (i in 1:length(start)){
-    # build uniprot query
-    s <- start[i] ; e <- end[i]
-    for (pos in seq(s, e)){
-      tmp <- paste(protId, pos, sep=':')
-      if (uniProtSeq==''){
-        uniProtSeq <- tmp
-      } else {
-        uniProtSeq <- paste(uniProtSeq, tmp, sep=',')
-      }
-    }
-  }
+  index = lapply(1:length(start), function(i) seq(start[i], end[i]))
+  uniProtSeq = paste(paste0(protId, ":", unlist(index)), collapse = ",")
 
   # check if prot structure available
   jsonResponse <- httr::GET(paste0(checkBaseUrl, uniProtSeq, '&protquery=y'))
@@ -118,7 +107,7 @@ browseProtStructure <- function(protId, start, end,
   if (jsonResponseParsed$hit){
     cat(paste0(fullUrl, '\n'))
     if (!doBrowse) {
-      # pass, do nothing 
+      # pass, do nothing
     } else if (Sys.getenv('R_BROWSER')!="") {
       browseURL(fullUrl)
     } else {

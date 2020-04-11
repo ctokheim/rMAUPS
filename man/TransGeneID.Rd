@@ -49,6 +49,7 @@ Gene ID conversion between ENTREZID and SYMBOL
 \examples{
 TransGeneID("NFE2L2", organism="hsa")
 TransGeneID("NFE2L2", toType="uniprot")
+
 }
 \author{
 Wubing Zhang

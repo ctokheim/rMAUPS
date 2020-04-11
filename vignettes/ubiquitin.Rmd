@@ -22,7 +22,7 @@ This vignette assumes that you have already properly installed rMAUPS.
 
 First, load the rMAUPS package.
 
-```{r libs}
+```{r libs, warning=FALSE}
 library(rMAUPS)
 ```
 

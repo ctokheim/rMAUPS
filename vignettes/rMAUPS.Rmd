@@ -43,7 +43,7 @@ devtools::install_github("WubingZhang/rMAUPS")
 
 ## load required packages
 The environment should be OK if you can load the required packages successfully.
-```{r libs}
+```{r libs, warning=FALSE}
 library(ggplot2)
 library(rMAUPS)
 ```

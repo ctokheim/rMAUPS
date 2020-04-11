@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/WubingZhang/rMAUPS.svg)](https://travis-ci.com/WubingZhang/rMAUPS) 
+[![Build Status](https://travis-ci.com/WubingZhang/rMAUPS.svg?branch=dev)](https://travis-ci.com/WubingZhang/rMAUPS) 
 
 # rMAUPS
 
@@ -43,11 +43,11 @@ $ conda install -c bioconda bioconductor-gsva bioconductor-biocstyle
 ```
 
 ## Tutorial
-For detail documentation, please visit http://cistrome.org/~wubing/rMAUPS.html or run the following command line.
-
+Browse the detail documentation by running the command line below.
+You can also visit http://cistrome.org/~wubing/rMAUPS.html and http://cistrome.org/~wubing/ubiquitin.html
 ```
-> library(rMAUPS)
-> vignette("rMAUPS")
+> vignette("rMAUPS", package = "rMAUPS")
+> vignette("ubiquitin", package = "rMAUPS")
 ```
 
 

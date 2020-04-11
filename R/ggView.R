@@ -28,7 +28,6 @@
 #'
 #' @export
 
-#===Distribution of beta scores======================================
 DensityView <- function(beta, samples = NULL, main = NULL,xlab = "Beta Score",
                         filename = NULL, width = 5, height = 4, ...){
   if(!is.null(samples) && length(samples)>0){ beta = beta[, samples, drop = FALSE]}
